@@ -1,0 +1,165 @@
+---
+title: "Downsample PMAIO and unstim"
+output: html_notebook
+---
+
+Load libraries
+
+```{r}
+library(Seurat)
+library(SeuratObject)
+library(SeuratDisk)
+library(Azimuth)
+library(scClustViz)
+library(viridis)
+library(presto)
+library(cluster)
+library(viridisLite)
+library(shiny)
+library(BPCells)
+```
+
+Load merged object
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/merged_3391_stimulation_scClustViz.RData")
+```
+
+Split by `orig.ident` and isolate unstim and pmaio
+
+```{r}
+obj.list <- SplitObject(scSeurat, split.by = "orig.ident")
+unstim <- obj.list$`3391_6hrs_unstim`
+pmaio <- obj.list$`3391_6hrs_PMAIO`
+```
+
+Downsample pmaio to be the same size as unstim
+
+```{r}
+set.seed(100)
+pmaio_subsampled <- pmaio[, sample(colnames(pmaio), ncol(unstim), replace=F)]
+pmaio_subsampled
+```
+
+Make obj.list again
+
+```{r}
+obj.list <- list(pmaio_subsampled, unstim)
+obj.list
+```
+
+Clear memory
+
+```{r}
+rm(scSeurat, sCVdata_list, pmaio, pmaio_subsampled, unstim)
+gc()
+```
+
+Choose features for integration
+
+```{r}
+intFeatures <- SelectIntegrationFeatures(object.list = obj.list,
+                                         assay = rep("SCT", times = length(obj.list)))
+```
+
+Choose anchors
+
+```{r}
+anchors <- FindIntegrationAnchors(object.list = obj.list,
+                                  reduction = "cca",
+                                  dims = 1:20,
+                                  k.anchor = 5)
+```
+
+Integrate
+
+```{r}
+integrated_sobj <- IntegrateData(anchorset = anchors, dims = 1:20)
+rm(obj.list)
+gc()
+```
+
+Downsample
+
+```{r}
+DefaultAssay(integrated_sobj) <- "integrated"
+integrated_sobj <- ScaleData(integrated_sobj)
+integrated_sobj <- RunPCA(integrated_sobj)
+integrated_sobj <- FindNeighbors(integrated_sobj)
+integrated_sobj <- RunUMAP(integrated_sobj, dims = 1:50)
+integrated_sobj <- RunTSNE(integrated_sobj)
+```
+
+Set up scClustViz
+
+```{r}
+DefaultAssay(integrated_sobj) <- "integrated"
+
+scSeurat <- integrated_sobj
+DE_bw_clust <- TRUE
+FDRthresh <- 0.01
+seurat_resolution <- 0
+sCVdata_list <- list()
+```
+
+Run scClustViz
+
+```{r}
+while(seurat_resolution < 1.0) {
+  seurat_resolution <- seurat_resolution + 0.2
+  # ^ iteratively incrementing resolution parameter
+  
+  scSeurat <- FindClusters(scSeurat,
+                           resolution=seurat_resolution,
+                           print.output=F)
+  message(" ")
+  message("------------------------------------------------------")
+  message(paste0("--------  res.",seurat_resolution," with ",
+                 length(levels(Idents(scSeurat)))," clusters --------"))
+  message("------------------------------------------------------")
+  curr_sCVdata <- CalcSCV(inD=scSeurat,
+                          cl=Idents(scSeurat),
+                          # ^ your most recent clustering results get stored in the Seurat "ident" slot
+                          assayType = "SCT",
+                          exponent=exp(1),
+                          pseudocount=1,
+                          DRthresh=0.1,
+                          DRforClust="pca",
+                          calcSil=T,
+                          calcDEvsRest=T,
+                          calcDEcombn=T)
+  
+  DE_bw_NN <- sapply(DEneighb(curr_sCVdata,FDRthresh),nrow)
+  # ^ counts # of DE genes between neighbouring clusters at your selected FDR threshold
+  
+  if (min(DE_bw_NN) < 1 | seurat_resolution > 2) { DE_bw_clust <- FALSE }
+  # ^ If no DE genes between nearest neighbours, don't loop again.
+  
+  sCVdata_list[[paste0("res.",seurat_resolution)]] <- curr_sCVdata
+}
+
+DefaultAssay(scSeurat) <- "SCT"
+```
+
+Give NA metadata 0
+
+```{r}
+scSeurat@meta.data[is.na(scSeurat@meta.data)] <- 0
+```
+
+Save
+
+```{r}
+save(sCVdata_list, scSeurat,
+     file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
+```
+
+Visualise
+
+```{r}
+DimPlot(scSeurat, group.by = "orig.ident")
+DimPlot(scSeurat, group.by = "scina_labels", label = TRUE)
+```
+
+
+

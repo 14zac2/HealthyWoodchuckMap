@@ -1,0 +1,378 @@
+---
+title: "Analysis of healthy liver tissue"
+output: html_notebook
+---
+
+```{r}
+library(Seurat)
+library(scClustViz)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+merged_sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allMerged_dropletQCFiltered.RDS")
+```
+
+Set idents and visualize in UMAP
+
+```{r}
+Idents(merged_sobj) <- "SCT_snn_res.0.2"
+DimPlot(merged_sobj, label = TRUE)
+```
+
+Look at batch effect
+
+```{r}
+DimPlot(merged_sobj, group.by = "orig.ident")
+```
+
+Look at general cell types
+
+```{r}
+DimPlot(merged_sobj, group.by = "scina_labels", label = TRUE)
+```
+
+Now use integrated object with kanchor = 5
+
+```{r}
+integrated_sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_kanchor5_dropletQCFiltered.RDS")
+```
+
+Visualise as UMAP
+
+```{r}
+Idents(integrated_sobj) <- "integrated_snn_res.0.6"
+DimPlot(integrated_sobj, label = TRUE)
+```
+
+Look at batch effect
+
+```{r}
+DimPlot(integrated_sobj, group.by = "orig.ident")
+```
+
+Now use integrated object with kanchor = 20
+
+```{r}
+integrated_sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_kanchor20_dropletQCFiltered.RDS")
+```
+
+Visualise as UMAP
+
+```{r}
+Idents(integrated_sobj) <- "integrated_snn_res.0.2"
+DimPlot(integrated_sobj, label = TRUE)
+```
+
+Look at batch effect
+
+```{r}
+DimPlot(integrated_sobj, group.by = "orig.ident")
+```
+
+SCINA labels for kanchor 20
+
+```{r}
+DimPlot(integrated_sobj, group.by = "scina_labels", label = TRUE)
+```
+
+
+Honestly the batch effect across both of those looks pretty similar. Let's use kanchor = 5 for now because that's the default value. I'm worried about the hepatocytes losing their periportal and pericentral signals, but maybe subclustering will help. 
+
+Look at SCINA labels
+
+```{r}
+DimPlot(integrated_sobj, group.by = "scina_labels", label = TRUE)
+```
+
+Let's check out some main markers
+
+## Markers for major, repeating cell types
+
+### T cells
+
+Looks like there are a few main clusters of T-cells. Cluster 0 (the largest cluster) appears mainly to be CD8A+ T-cells. The bottom right of that cluster is LEF1+/TCF7+. Cluster 7 may be NK cells, as these are XCL1;XCL2+/KLRB1+.
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("CD3E","GIMAP7","NKG7","CD8A")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("TOX","XCL1;XCL2","LEF1","IL7R-1")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("NXF2;NXF2B;NXF5","KLRB1","TCF7","CTLA4")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Macrophages/Monocytes
+
+MARCO+ macrophages appear to make up clusters 4 and 14. Not sure yet what is unique about 14. HLA+ macrophages are cluster 5, but there is some subtyping within there. HCK+/MAL+ macs are on the right, and there is more HLA on the left. S100A8+ macs/monocytes are cluster 3. There don't appear to be any DEFA+ macs (only a few cells); suggests true disease-association.
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("MARCO","CD5L","FER","MSR1")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("LGALS1","TYROBP","HCK","MAL")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("S100A8","S100A9","LYZ-1","DEFA6;DEFA4;DEFA5-1")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("S100A6","HLA-DPB1-1","CD74","RETN")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Endothelial cells
+
+All LSECs and endothelial cells appear to be in cluster 1 and maybe 11; the top of cluster 1 is likely CV endothelial cells (RSPO3+) and the bottom is likely vascular endothelial cells (CD34+/MECOM+)
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("CLEC4G","CTSV;CTSL","DNASE1L3","STAB2")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("RSPO3","WNT2","CD34","MECOM")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Plasma cells
+
+All clearly the bottom of cluster 10
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("JCHAIN","MZB1","DERL3","IGLL5-1")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### B cells
+
+This is the right blob of cluster 10.
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("CD79B","BANK1","MS4A1","PAX5")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Cholangiocytes
+
+Cluster 13. Maybe 15??
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("KRT19","SLC4A4","KRT18","CLDN10")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Mesenchymal cells
+
+Cluster 12.
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("HHIP","COL1A2","IGFBP7","DCN")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Mast cells
+
+It looks like there are none of these exist but there are a few cells in cluster 3/5
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("FCER1A","Prss29","MS4A2","Prss34")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Dividing
+
+The top of cluster 10.
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("TOP2A","STMN1","MKI67","BRCA2")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Erythrocytes
+
+None - yay!!
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("HBD;HBB","HBA2;HBA1","ALAS2","ISCA1")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Dendritic cells
+
+Maybe a bit of signal on the left of cluster 5.
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("CST3","IFI30","PLBD1","PLD4")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+### Hepatocytes
+
+Lots of background, as expected, lots coming from L212 TLH. Clusters 2,6,8,9 are hepatocytes. Periportal and pericentral signals are not clear at all, will subcluster.
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("ALB-1","APOA1","APOC3","APOE")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+```{r}
+FeaturePlot(integrated_sobj, features = c("CYP2E1","FETUB","PCK1","C8G")) & 
+  NoLegend() &
+  FontSize(x.text = 5, y.text = 5, x.title = 8, y.title = 8, main = 10)
+```
+
+Resolution 0.2: Cluster 6 is actually likely contamination, not hepatocytes, because when clusters 2,6,8,9 are subclustered, anything from cluster 6 is distinguished by its macrophage-like genes. It's also in the middle of the UMAP spreading to other clusters suggesting background. Cluster 9 is also T-cell contamination. The others are not clustering together so may need higher integration.
+
+Okay, so here's what's gonna happen. I'm going to isolate clusters 6,11,12,13,15,17 and remove all biopsy samples from these data. Then I'm going to recluster and reisolate hepatocytes. 13 and 6 also seem to be garbage so I may just remove those, actually. Let's try this: First just remove biopsy samples, no entire clusters:
+
+```{r}
+# Pick cells to remove
+Idents(integrated_sobj) <- "integrated_snn_res.0.6"
+toRemove <- WhichCells(integrated_sobj, idents = c(6,11,12,13,15,17))
+length(toRemove)
+# Only keep cell IDs if they have biopsy in them
+toRemove <- grep("BIOPSY", toRemove, value = TRUE)
+length(toRemove)
+head(toRemove)
+```
+
+```{r}
+# Now subset object
+sobj <- subset(integrated_sobj, cells = toRemove, invert = TRUE)
+```
+
+ALTERNATIVELY, isolate the cells I removed
+
+```{r}
+sobj <- subset(integrated_sobj, cells = toRemove)
+```
+
+
+Okay great, that seemed to work. Now let's recluster.
+
+```{r}
+rm(integrated_sobj, toRemove)
+gc()
+DefaultAssay(sobj) <- "integrated"
+sobj <- RunPCA(sobj)
+sobj <- FindNeighbors(sobj)
+sobj <- RunUMAP(sobj, dims = 1:50)
+sobj <- RunTSNE(sobj)
+```
+
+```{r}
+scSeurat <- sobj
+DE_bw_clust <- TRUE
+FDRthresh <- 0.01
+seurat_resolution <- 0
+sCVdata_list <- list()
+
+while(seurat_resolution < 1.0) {
+  seurat_resolution <- seurat_resolution + 0.2
+  # ^ iteratively incrementing resolution parameter
+  
+  scSeurat <- FindClusters(scSeurat,
+                           resolution=seurat_resolution,
+                           print.output=F)
+  message(" ")
+  message("------------------------------------------------------")
+  message(paste0("--------  res.",seurat_resolution," with ",
+                 length(levels(Idents(scSeurat)))," clusters --------"))
+  message("------------------------------------------------------")
+  curr_sCVdata <- CalcSCV(inD=scSeurat,
+                          cl=Idents(scSeurat),
+                          # ^ your most recent clustering results get stored in the Seurat "ident" slot
+                          assayType = "SCT",
+                          exponent=exp(1),
+                          pseudocount=1,
+                          DRthresh=0.1,
+                          DRforClust="pca",
+                          calcSil=T,
+                          calcDEvsRest=T,
+                          calcDEcombn=T)
+  
+  DE_bw_NN <- sapply(DEneighb(curr_sCVdata,FDRthresh),nrow)
+  # ^ counts # of DE genes between neighbouring clusters at your selected FDR threshold
+  
+  if (min(DE_bw_NN) < 1 | seurat_resolution > 2) { DE_bw_clust <- FALSE }
+  # ^ If no DE genes between nearest neighbours, don't loop again.
+  
+  sCVdata_list[[paste0("res.",seurat_resolution)]] <- curr_sCVdata
+}
+
+DefaultAssay(scSeurat) <- "SCT"
+```
+
+
+```{r}
+for (res in seq(from = 0.2, to = 2.0, by = 0.2)) {
+  sobj <- FindClusters(sobj, resolution = res)
+}
+# Set clustering resolution
+Idents(sobj) <- "integrated_snn_res.0.2"
+# Change default assay
+DefaultAssay(sobj) <- "SCT"
+```
+
+```{r}
+# The new object
+saveRDS(sobj,
+        file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+# Garbage
+save(sCVdata_list, scSeurat,
+     file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/heps_biopsy_kanchor5_scClustViz.RData")
+```
+
+IT LOOKS SO NICE!
+
+```{r}
+Idents(sobj) <- "integrated_snn_res.0.4"
+DimPlot(sobj, label = TRUE)
+```
+
+
+```{r}
+DimPlot(sobj, group.by = "scina_labels", label = TRUE)
+```
+
+```{r}
+FeaturePlot(sobj, features = c("CYP2E1","PCK1"))
+```
+
+Let's try increasing kanchor to 20 and see what it looks like. Wrecked it did not help. Gonna subcluster 9, 10, 12 (res 0.4). Okay, so what worked was isolating these cells, removing biopsy, reintegrating using kanchor as 20.
+
+Now let's look at removed biopsy cells.
+
+
+

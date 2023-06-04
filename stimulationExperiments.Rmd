@@ -1,0 +1,278 @@
+---
+title: "Stimulation experiments"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+Analysis of stimulation experiments.
+
+```{r}
+library(Seurat)
+library(dplyr)
+library(ggplot2)
+```
+
+Load integrated object. This object has been integrated with k.anchor = 20, because there was lots of batch effect between the 0hr tissue and the other two experiments (which merged quite well).
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
+```
+
+Set identities:
+
+```{r}
+Idents(scSeurat) <- "integrated_snn_res.0.4"
+```
+
+
+Check out the UMAP of clusters, original identities, and refined SCINA labels.
+
+```{r}
+DimPlot(scSeurat, label = TRUE)
+DimPlot(scSeurat, group.by = "tissue_type", label = FALSE)
+DimPlot(scSeurat, group.by = "scina_labels", label = TRUE) & NoLegend()
+```
+
+Look at tissue-type per cluster on a proportional level:
+
+```{r}
+pt <- table(Idents(scSeurat), scSeurat$tissue_type)
+pt <- as.data.frame(pt)
+ggplot(pt, aes(x = Var1, y = Freq, fill = Var2)) +
+  theme_bw(base_size = 15) +
+  geom_col(position = "fill", width = 0.5) +
+  xlab("Sample") +
+  ylab("Proportion") +
+  theme(legend.title = element_blank())
+```
+
+Look for T-cell signatures.
+
+```{r}
+FeaturePlot(scSeurat, features = c("CD3E", "NKG7"))
+FeaturePlot(scSeurat, features = c("LEF1", "XCL1;XCL2"))
+FeaturePlot(scSeurat, features = c("TOX", "CD8A"))
+```
+
+Look for macrophage signatures:
+
+```{r}
+FeaturePlot(scSeurat, features = c("LGALS1", "TYROBP"))
+FeaturePlot(scSeurat, features = c("MARCO", "C1QC"))
+FeaturePlot(scSeurat, features = c("LYZ-1", "S100A8"))
+FeaturePlot(scSeurat, features = c("DEFA6;DEFA4;DEFA5", "CTSS"))
+FeaturePlot(scSeurat, features = c("FLT3", "S100A12"))
+```
+
+Look for B and plasma cell signatures
+
+```{r}
+FeaturePlot(scSeurat, features = c("CD79B", "JCHAIN"))
+```
+
+
+Cluster 12 is the only cluster that is obviously dominated by the unstimulated experiments. What cells are these? Looks like they are hepatocytes. A lot of the markers are periportal, but all hepatocytes are in this cluster.
+
+```{r}
+# Isolate DE genes
+clust11 <- sCVdata_list$res.0.4@DEvsRest$`12`[order(sCVdata_list$res.0.4@DEvsRest$`12`$Wstat,
+                                                    decreasing = TRUE), ]
+rownames(clust11)[1:50]
+FeaturePlot(scSeurat, features = c("PAH","PCK1"))
+FeaturePlot(scSeurat, features = c("CYP2E1","FETUB"))
+FeaturePlot(scSeurat, features = c("ACACB","ELOVL6"))
+FeaturePlot(scSeurat, features = c("POLR2D", "ALB-1"))
+```
+
+Let's look at some of the key markers that Sonya sent: IL2, IL4, IL6, IL7, IL10, IL12A, TGFB
+
+```{r}
+FeaturePlot(scSeurat, features = c("IL2", "IL4"))
+FeaturePlot(scSeurat, features = c("IL6", "IL6-1"))
+FeaturePlot(scSeurat, features = c("IL7", "IL10"))
+FeaturePlot(scSeurat, features = c("IL12A", "TGFB1"))
+```
+
+It's pretty hard to see which cytokines are expressed in which samples, so I'm going to try splitting up the samples.
+
+```{r}
+DimPlot(scSeurat, split.by = "tissue_type", label = TRUE) & NoLegend()
+```
+
+Now let's take a look at the features on this split plot.
+
+```{r}
+FeaturePlot(scSeurat, feature = "IL2", split.by = "tissue_type") # Only in PMAIO cluster 2
+FeaturePlot(scSeurat, feature = "IL4", split.by = "tissue_type") # Only in PMAIO cluster 2
+FeaturePlot(scSeurat, feature = "IL6", split.by = "tissue_type") # Stronger in endo and mesem PMAIO
+FeaturePlot(scSeurat, feature = "IL6-1", split.by = "tissue_type") # No signal
+FeaturePlot(scSeurat, feature = "IL7", split.by = "tissue_type") # More in PMAIO cluster 4/5
+FeaturePlot(scSeurat, feature = "IL10", split.by = "tissue_type") # More in PMAIO cluster 2
+FeaturePlot(scSeurat, feature = "IL12A", split.by = "tissue_type") # No signal
+FeaturePlot(scSeurat, feature = "TGFB1", split.by = "tissue_type") # Pretty even across all
+FeaturePlot(scSeurat, feature = "IFNG", split.by = "tissue_type") # More in PMAIO cluster 2
+FeaturePlot(scSeurat, feature = "TGFA", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "TNF", split.by = "tissue_type")
+```
+
+Cluster 2 looks like it generally has more IL genes expressed. Isolate DE genes for this cluster.
+
+```{r}
+clust1 <- sCVdata_list$res.0.4@DEvsRest$`2`[order(sCVdata_list$res.0.4@DEvsRest$`2`$Wstat,
+                                                    decreasing = TRUE), ]
+cat(rownames(clust1)[1:50])
+```
+
+Visualise these genes in violin plots.
+
+**Interpretation**: Now I see that IL2 and IL4 are expressed in more than just cluster 2, but it is nearly always in PMAIO. Cluster 8 is definitely where IL6 is expressed. IL7 is a bit more spread out across treatment types, but it's definitely present in PMAIO in clusters 4, 5, and 11. Cluster 11 is plasma cells, but I'm honestly not sure of 4 and 5 - low signal hepatocytes? IL10 is in clusters 2 and 11 PMAIO. IL12A is a bit more in 4 and 5 PMAIO.
+
+```{r}
+VlnPlot(scSeurat, feature = "IL2", split.by = "tissue_type") # Only in PMAIO cluster 2
+VlnPlot(scSeurat, feature = "IL4", split.by = "tissue_type") # Only in PMAIO cluster 2
+VlnPlot(scSeurat, feature = "IL6", split.by = "tissue_type") # Stronger in endo and mesem PMAIO
+VlnPlot(scSeurat, feature = "IL6-1", split.by = "tissue_type") # No signal
+VlnPlot(scSeurat, feature = "IL7", split.by = "tissue_type") # More in PMAIO cluster 4/5
+VlnPlot(scSeurat, feature = "IL10", split.by = "tissue_type") # More in PMAIO cluster 2
+VlnPlot(scSeurat, feature = "IL12A", split.by = "tissue_type") # A bit more in 1,4,5
+VlnPlot(scSeurat, feature = "TGFB1", split.by = "tissue_type") # Pretty even across all
+```
+
+## Subclustering
+
+Isolate T-cells and scale.
+
+```{r}
+# Store metadata
+scSeurat <- AddMetaData(scSeurat, 
+                    Idents(scSeurat), 
+                    col.name = "original_clusters_res.0.4")
+tcells_sobj <- subset(scSeurat,
+                      idents = c("2","6"))
+DefaultAssay(tcells_sobj) <- "integrated"
+# Recluster
+tcells_sobj <- RunPCA(tcells_sobj) %>%
+  FindNeighbors(dims = 1:30) %>%
+  RunUMAP(dims = 1:30) %>%
+  RunTSNE()
+```
+
+Cluster with scClustViz
+
+```{r}
+scSeurat <- tcells_sobj
+DE_bw_clust <- TRUE
+FDRthresh <- 0.01
+seurat_resolution <- 0
+sCVdata_list <- list()
+
+while(seurat_resolution < 1.0) {
+  seurat_resolution <- seurat_resolution + 0.2
+  # ^ iteratively incrementing resolution parameter
+  
+  scSeurat <- FindClusters(scSeurat,
+                           resolution=seurat_resolution,
+                           print.output=F)
+  message(" ")
+  message("------------------------------------------------------")
+  message(paste0("--------  res.",seurat_resolution," with ",
+                 length(levels(Idents(scSeurat)))," clusters --------"))
+  message("------------------------------------------------------")
+  curr_sCVdata <- CalcSCV(inD=scSeurat,
+                          cl=Idents(scSeurat),
+                          # ^ your most recent clustering results get stored in the Seurat "ident" slot
+                          assayType = "SCT",
+                          exponent=exp(1),
+                          pseudocount=1,
+                          DRthresh=0.1,
+                          DRforClust="pca",
+                          calcSil=T,
+                          calcDEvsRest=T,
+                          calcDEcombn=T)
+  
+  DE_bw_NN <- sapply(DEneighb(curr_sCVdata,FDRthresh),nrow)
+  # ^ counts # of DE genes between neighbouring clusters at your selected FDR threshold
+  
+  if (min(DE_bw_NN) < 1 | seurat_resolution > 2) { DE_bw_clust <- FALSE }
+  # ^ If no DE genes between nearest neighbours, don't loop again.
+  
+  sCVdata_list[[paste0("res.",seurat_resolution)]] <- curr_sCVdata
+}
+
+DefaultAssay(scSeurat) <- "SCT"
+```
+
+Save
+
+```{r}
+save(sCVdata_list, scSeurat,
+     file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_tcells_scClustViz.RData")
+```
+
+
+Isolate macrophages and scale.
+
+```{r}
+# Store metadata
+scSeurat <- AddMetaData(scSeurat, 
+                    Idents(scSeurat), 
+                    col.name = "original_clusters_res.0.4")
+mac_sobj <- subset(scSeurat,
+                      idents = c("1"))
+DefaultAssay(mac_sobj) <- "integrated"
+# Recluster
+mac_sobj <- RunPCA(mac_sobj) %>%
+  FindNeighbors(dims = 1:30) %>%
+  RunUMAP(dims = 1:30) %>%
+  RunTSNE()
+```
+
+Cluster with scClustViz
+
+```{r}
+scSeurat <- mac_sobj
+DE_bw_clust <- TRUE
+FDRthresh <- 0.01
+seurat_resolution <- 0
+sCVdata_list <- list()
+
+while(seurat_resolution < 1.0) {
+  seurat_resolution <- seurat_resolution + 0.2
+  # ^ iteratively incrementing resolution parameter
+  
+  scSeurat <- FindClusters(scSeurat,
+                           resolution=seurat_resolution,
+                           print.output=F)
+  message(" ")
+  message("------------------------------------------------------")
+  message(paste0("--------  res.",seurat_resolution," with ",
+                 length(levels(Idents(scSeurat)))," clusters --------"))
+  message("------------------------------------------------------")
+  curr_sCVdata <- CalcSCV(inD=scSeurat,
+                          cl=Idents(scSeurat),
+                          # ^ your most recent clustering results get stored in the Seurat "ident" slot
+                          assayType = "SCT",
+                          exponent=exp(1),
+                          pseudocount=1,
+                          DRthresh=0.1,
+                          DRforClust="pca",
+                          calcSil=T,
+                          calcDEvsRest=T,
+                          calcDEcombn=T)
+  
+  DE_bw_NN <- sapply(DEneighb(curr_sCVdata,FDRthresh),nrow)
+  # ^ counts # of DE genes between neighbouring clusters at your selected FDR threshold
+  
+  if (min(DE_bw_NN) < 1 | seurat_resolution > 2) { DE_bw_clust <- FALSE }
+  # ^ If no DE genes between nearest neighbours, don't loop again.
+  
+  sCVdata_list[[paste0("res.",seurat_resolution)]] <- curr_sCVdata
+}
+
+DefaultAssay(scSeurat) <- "SCT"
+```
+
+
