@@ -1,0 +1,314 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This script reads in both PBMC and Liver Seurat objects, and generates select figures used in the manuscript.
+
+## Prepare objects
+
+Load libraries
+
+```{r}
+library(Seurat)
+library(scClustViz)
+library(ggplot2)
+library(dplyr)
+```
+
+Read in liver map
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+res <- "integrated_snn_res.1.4"
+Idents(sobj) <- res
+```
+
+Read in PBMC map
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
+sobj <- scSeurat
+res <- "integrated_snn_res.0.6"
+Idents(sobj) <- res
+```
+
+## Visualization of metadata
+
+UMAP with no cluster numbers
+
+```{r}
+DimPlot(sobj, label = FALSE) & NoLegend()
+```
+
+UMAP with cluster numbers
+
+```{r}
+DimPlot(sobj, label = TRUE)
+```
+
+Map with SCINA-generated cell-type labels
+
+```{r}
+DimPlot(sobj, group.by = "scina_labels_refined", label = TRUE) & NoLegend()
+```
+
+Map with original identities
+
+```{r}
+DimPlot(sobj, group.by = "orig.ident")
+```
+
+Barplot with original identities
+
+```{r}
+# Meta data to plot:
+df <- sobj@meta.data
+# Check what column the cluster identities are in
+col <- which(colnames(df) == res)
+# Order clusters
+df[,col] <- factor(Idents(sobj),
+                             levels = c(sort(as.numeric(levels(Idents(sobj))))))
+# Basic plot of clusters by replicate
+ggplot(df, aes(x = get(res), fill = orig.ident)) +
+  geom_bar() +
+  theme(axis.text = element_text(size = 7))
+# Plot as proportion or percentage of cluster
+ggplot(df, aes(x = get(res), fill = orig.ident)) +
+  geom_bar(position = "fill") +
+  theme(axis.text = element_text(size = 7))
+```
+
+
+## Dotplots
+
+Generate dotplot with specific markers
+
+```{r}
+DotPlot(sobj,
+        assay = "SCT",
+        features = c("PTPRC", "CALCRL", "NKG7", "CD3E", "MARCO", "LYZ-1", "CD19", "MS4A1", "STAB2")
+        ) +
+  ggtitle("Select features for liver map")
+```
+
+## Feature plots
+
+Make specific plots with specific genes. The genes we are interested in include: *PTPRC, CALCRL, NKG7, CD3E, MARCO, LYZ, CD19, MS4A1, STAB2, ALB, CD4, CD8A, CLEC4G, CD5L, C1QB, ACTA2, VWF, IGLL5, CD68*
+
+```{r}
+geneCode <- "sct_LYZ-1" # Woodchuck-specific nomenclature for this genome
+gene <- "LYZ"
+mapType <- "Liver"
+FeaturePlot(sobj, features = geneCode) +
+  ggtitle(paste(gene, "-", mapType, "map"))
+```
+
+Another version of the feature plot that outputs genes in italics
+
+```{r}
+FeaturePlot(sobj, features = geneCode) +
+  ggtitle(expression(italic(gene)))
+```
+
+## Correlation plots
+
+Generate heatmaps comparing woodchuck clusters with various datasets
+
+### Setup for all correlations
+
+First, set up whatever woodchuck dataset I am working with by reading in the ortholog table, choosing whether the orthologs to use are human, mouse, or woodchuck, and calculating the average expression for each cluster. The output of this section is the scaled cluster gene-expression matrix
+
+```{r}
+# Read in ortholog table
+geneNameTable <- read.table("~/Dropbox/Zoe/scf_version/make_gtf/orthofinder_sc2/homologene/collectedOrthofinderPairings.tsv",
+                            sep = "\t",
+                            header = TRUE)
+woodchuckClusterAverages <- AverageExpression(sobj,
+                                              assays = "SCT",
+                                              slot = "scale.data")
+# Scale data
+woodchuckClusterAverages$SCT <- na.omit(t(scale(t(woodchuckClusterAverages$SCT))))
+# Grab gene names from Seurat object
+uniqueHier <- row.names(woodchuckClusterAverages$SCT)
+uniqueHier <- as.data.frame(uniqueHier)
+# Bind with geneNameTable to get correct order (notice uniqueHier is on left)
+newNames <- dplyr::left_join(uniqueHier, geneNameTable, by = "uniqueHier")
+# Get orthologs from either mouse or human
+species <- "human"
+if (species == "human") {
+  # If human one-to-one ortho has NA, replace with mikado_final_sc2_stringent_noMito_protein column
+  # This is to avoid and potential mistakes in recognizing things it shouldn't be recognizing
+  newNames$speciesOneToOne <- ifelse(is.na(newNames$humanOneToOne), newNames$uniqueHier, newNames$humanOneToOne)
+} else if (species == "mouse") {
+  newNames$speciesOneToOne <- ifelse(is.na(newNames$mouseOneToOne), newNames$uniqueHier, newNames$mouseOneToOne)
+} else if (species == "woodchuck") {
+  newNames$speciesOneToOne <- newNames$uniqueHier
+}
+# Grab dataframe
+woodchuckClusterAverages <- woodchuckClusterAverages$SCT
+# Replace names with one-to-one orthologue of particular species
+row.names(woodchuckClusterAverages) <- newNames$speciesOneToOne
+# Make sure formatted correctly
+woodchuckClusterAverages <- as.data.frame(woodchuckClusterAverages)
+# Order by gene name
+woodchuckClusterAverages <- woodchuckClusterAverages[order(row.names(woodchuckClusterAverages)),]
+```
+
+### Dataset-specific setup
+
+Correlation of woodchuck PBMCs with human 68k PBMC dataset from 10X Genomics
+
+```{r}
+# Now need to read in 68K PBMC data
+humanPBMC <- read.csv("~/Dropbox/Zoe/scf_version/analysis/correlationTests/68K_pbmc_data/68K_enrichedGenes.csv",
+                      header = FALSE)
+# Get rid of top row
+humanPBMC <- humanPBMC[-1,]
+# Separate all cell and myloid cell data
+allCells <- select(humanPBMC, V1, V2, V3)
+myeloid <- select(humanPBMC, V5, V6, V7)
+# Rename and get rid of first row
+colnames(allCells) <- c("Cluster", "Gene", "Enrichment")
+colnames(myeloid) <- c("Cluster", "Gene", "Enrichment")
+# Get rid of top row
+allCells <- allCells[-1,]
+myeloid <- myeloid[-1,]
+# I can then filter the rows and bind the data frames back together by gene name
+for (j in 1:10) {
+  dat <- dplyr::filter(allCells, Cluster == j)
+  #dat <- get(paste("allCells", j, sep = ""))
+  # Multiply enrichment values by -1 because the signs are backwards???
+  dat$Enrichment <- as.numeric(dat$Enrichment) * -1
+  dat <- dplyr::select(dat, Gene, Enrichment)
+  colnames(dat) <- c("Gene", paste("Enrichment", j, sep = ""))
+  if (j == 1) {
+    allCellsMatrix <- dat
+  }
+  else {
+    allCellsMatrix <- dplyr::full_join(allCellsMatrix, dat, by = "Gene")
+  }
+}
+# Make row names gene names
+rownames(allCellsMatrix) <- allCellsMatrix$Gene
+allCellsMatrix <- dplyr::select(allCellsMatrix, -Gene)
+# Make column names cell types
+colnames(allCellsMatrix) <- c("Activated CD8+", "Naive CD8+", "Memory and Reg T",
+                              "Naive CD4+", "NK", "CD8+", "B", "Megakaryocytes",
+                              "Monocytes and Dendritic", "B, Dendritic, T")
+# Scale across columns
+allCellsMatrix <- t(scale(t(allCellsMatrix)))
+# Order genes alphabetically by gene name
+allCellsMatrix <- allCellsMatrix[order(row.names(allCellsMatrix)),]
+```
+
+Correlation of woodchuck liver with human liver dataset from MacParland *et al.* (2018)
+
+```{r}
+# Find cluster averages of human liver data
+load("~/Dropbox/Zoe/scf_version/analysis/correlationTests/HumanLiver.RData")
+# Run SCTransform
+HumanLiverSeurat <- UpdateSeuratObject(HumanLiverSeurat)
+HumanLiverSeurat <- SCTransform(HumanLiverSeurat)
+humanClusterAverages <- AverageExpression(HumanLiverSeurat,
+                                          assays = "SCT",
+                                          slot = "scale.data")
+# Replace cluster numbers with names
+colnames(humanClusterAverages$SCT) <- c("Hep 1", "Alpha-beta T cells", "Hep 2",
+                                        "Inflammatory macs", "Hep 3", "Hep 4",
+                                        "Plasma cells", "NK-like cells", "Gamma-delta T cells",
+                                        "Non-inflammatory macs", "Periportal LSECs", "Central venous LSECs",
+                                        "Portal endothelial cells", "Hep 5", "Hep 6",
+                                        "Mature B cells", "Cholangiocytes", "Gamma-delta T cells 2",
+                                        "Erythroid cells", "Hepatic stellate cells")
+# If only looking at specific clusters
+#humanClusterAverages$SCT <- humanClusterAverages$SCT[,c("3","1","15","6","14","5")]
+# Otherwise go straight to here:
+humanClusterAverages$SCT <- na.omit(t(scale(t(humanClusterAverages$SCT))))
+# Grab gene names
+humanGenes <- row.names(humanClusterAverages$SCT)
+# Now turn into large dataframe
+allCellsMatrix <- as.data.frame(humanClusterAverages$SCT)
+# Order by row name
+allCellsMatrix <- allCellsMatrix[order(row.names(allCellsMatrix)),]
+```
+
+Correlation of woodchuck liver with human liver dataset from Aizarani *et al.*
+
+```{r}
+# Read in Aizarani dataset
+aizarani <- readRDS("~/Dropbox/Zoe/scf_version/analysis/correlationTests/GSE124395_Normalhumanliverdata.RData")
+# Read in clusters and label cells
+aizaraniClusters <- read.table("~/Dropbox/Zoe/scf_version/analysis/correlationTests/GSE124395_clusterpartition.txt")
+# Only keep cells in the cluster object
+aizarani <- aizarani[,intersect(colnames(aizarani),row.names(aizaraniClusters))]
+# Create Seurat object
+aizarani <- CreateSeuratObject(counts = aizarani)
+# Run SCTransform
+aizarani <- SCTransform(aizarani)
+# Add cluster IDs
+Idents(aizarani) <- aizaraniClusters$sct.cpart
+# Get cluster averages
+aizaraniAverages <- AverageExpression(aizarani,
+                                      assays = "SCT",
+                                      slot = "scale.data")
+aizaraniAverages$SCT <- na.omit(t(scale(t(aizaraniAverages$SCT))))
+# Grab gene names
+aizaraniGenes <- row.names(aizaraniAverages$SCT)
+# Now turn into large dataframe
+allCellsMatrix <- as.data.frame(aizaraniAverages$SCT)
+# Order by row name
+allCellsMatrix <- allCellsMatrix[order(row.names(allCellsMatrix)),]
+```
+
+Correlation of woodchuck liver with woodchuck PBMCs. For this correlation, read in the woodchuck liver dataset at the beginning of this script and then read in the woodchuck PBMCs below
+
+```{r}
+# Start with liver and read in woodchuck PBMCs again
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
+Idents(scSeurat) <- "integrated_snn_res.0.6"
+# Find cluster averages
+pbmcClusterAverages <- AverageExpression(scSeurat,
+                                         assays = "SCT",
+                                         slot = "scale.data")
+pbmcClusterAverages <- as.data.frame(na.omit(t(scale(t(pbmcClusterAverages$SCT)))))
+# Order by row name
+allCellsMatrix <- pbmcClusterAverages[order(row.names(pbmcClusterAverages)),]
+```
+
+### Output plots for all correlations
+
+```{r}
+speciesData <- "Human Liver (Aizarani et al.)"
+woodchuckData <- "Woodchuck Liver"
+# Now find intersecting genes
+matches <- intersect(row.names(allCellsMatrix),
+                     row.names(woodchuckClusterAverages))
+# Look at how many genes matched
+length(matches)
+# Make new matrices with only matching gene names
+toCor <- allCellsMatrix[matches,]
+woodchuckAveragesCor <- woodchuckClusterAverages[matches,]
+# Do Pearson
+pearVal <- cor(toCor, woodchuckAveragesCor, method = "pearson")
+heatmap(pearVal,
+        main = paste("Pearson correlation of", speciesData, "vs", woodchuckData),
+        xlab = woodchuckData,
+        ylab = speciesData)
+        #margins = c(6,11))
+#Rowv = NA,
+#Colv = NA)
+# Do Spearman
+spearVal <- cor(toCor, woodchuckAveragesCor, method = "spearman")
+heatmap(spearVal,
+        main = paste("Spearman correlation of", speciesData, "vs", woodchuckData),
+        xlab = woodchuckData,
+        ylab = speciesData)
+        #margins = c(6,11))
+#Rowv = NA,
+#Colv = NA)
+```
+
+
+
+
