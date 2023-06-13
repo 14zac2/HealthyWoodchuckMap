@@ -139,6 +139,7 @@ VlnPlot(scSeurat, feature = "IL7", split.by = "tissue_type") # More in PMAIO clu
 VlnPlot(scSeurat, feature = "IL10", split.by = "tissue_type") # More in PMAIO cluster 2
 VlnPlot(scSeurat, feature = "IL12A", split.by = "tissue_type") # A bit more in 1,4,5
 VlnPlot(scSeurat, feature = "TGFB1", split.by = "tissue_type") # Pretty even across all
+VlnPlot(scSeurat, feature = "TNF", split.by = "tissue_type")
 ```
 
 ## Subclustering
@@ -274,5 +275,13 @@ while(seurat_resolution < 1.0) {
 
 DefaultAssay(scSeurat) <- "SCT"
 ```
+
+Save
+
+```{r}
+save(sCVdata_list, scSeurat,
+     file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_mac_scClustViz.RData")
+```
+
 
 
