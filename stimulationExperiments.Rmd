@@ -13,6 +13,7 @@ Analysis of stimulation experiments.
 library(Seurat)
 library(dplyr)
 library(ggplot2)
+library(scClustViz)
 ```
 
 Load integrated object. This object has been integrated with CCA, because there was lots of batch effect between the 0hr tissue and the other two experiments (which merged quite well).
@@ -36,17 +37,30 @@ DimPlot(scSeurat, group.by = "tissue_type", label = FALSE)
 DimPlot(scSeurat, group.by = "scina_labels", label = TRUE) & NoLegend()
 ```
 
+```{r}
+pdf(file = './figures/stimulation/downsampled_UMAP.pdf')
+DimPlot(scSeurat, label = TRUE)
+dev.off()
+pdf(file = './figures/stimulation/downsampled_tissue_type_UMAP.pdf')
+DimPlot(scSeurat, group.by = "scina_labels", label = TRUE) & NoLegend()
+dev.off()
+```
+
 Look at tissue-type per cluster on a proportional level:
 
 ```{r}
 pt <- table(Idents(scSeurat), scSeurat$tissue_type)
 pt <- as.data.frame(pt)
-ggplot(pt, aes(x = Var1, y = Freq, fill = Var2)) +
+plot <- ggplot(pt, aes(x = Var1, y = Freq, fill = Var2)) +
   theme_bw(base_size = 15) +
   geom_col(position = "fill", width = 0.5) +
   xlab("Sample") +
   ylab("Proportion") +
   theme(legend.title = element_blank())
+plot
+pdf(file = './figures/stimulation/downsampled_tissue_type_barplot.pdf')
+plot
+dev.off()
 ```
 
 Look for T-cell signatures.
@@ -100,23 +114,67 @@ It's pretty hard to see which cytokines are expressed in which samples, so I'm g
 
 ```{r}
 DimPlot(scSeurat, split.by = "tissue_type", label = TRUE) & NoLegend()
+pdf(file = './figures/stimulation/downsampled_UMAP_split.pdf')
+DimPlot(scSeurat, split.by = "tissue_type", label = TRUE) & NoLegend()
+dev.off()
 ```
 
 Now let's take a look at the features on this split plot.
 
 ```{r}
 FeaturePlot(scSeurat, feature = "IL2", split.by = "tissue_type") # Only in PMAIO cluster 2
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL2.pdf")
+FeaturePlot(scSeurat, feature = "IL2", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "IL4", split.by = "tissue_type") # Only in PMAIO cluster 2
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL4.pdf")
+FeaturePlot(scSeurat, feature = "IL4", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "IL6", split.by = "tissue_type") # Stronger in endo and mesem PMAIO
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL6.pdf")
+FeaturePlot(scSeurat, feature = "IL6", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "IL6-1", split.by = "tissue_type") # No signal
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL6-1.pdf")
+FeaturePlot(scSeurat, feature = "IL6", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "IL7", split.by = "tissue_type") # More in PMAIO cluster 4/5
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL7.pdf")
+FeaturePlot(scSeurat, feature = "IL7", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "IL10", split.by = "tissue_type") # More in PMAIO cluster 2
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL10.pdf")
+FeaturePlot(scSeurat, feature = "IL10", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "IL12A", split.by = "tissue_type") # No signal
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL12A.pdf")
+FeaturePlot(scSeurat, feature = "IL12A", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "TGFB1", split.by = "tissue_type") # Pretty even across all
+pdf(file = "figures/stimulation/downsampled_UMAP_split_TGFB1.pdf")
+FeaturePlot(scSeurat, feature = "TGFB1", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "IFNG", split.by = "tissue_type") # More in PMAIO cluster 2
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IFNG.pdf")
+FeaturePlot(scSeurat, feature = "IFNG", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "TGFA", split.by = "tissue_type")
+pdf(file = "figures/stimulation/downsampled_UMAP_split_TGFA.pdf")
+FeaturePlot(scSeurat, feature = "TGFA", split.by = "tissue_type")
+dev.off()
 FeaturePlot(scSeurat, feature = "TNF", split.by = "tissue_type")
+pdf(file = "figures/stimulation/downsampled_UMAP_split_TNF.pdf")
+FeaturePlot(scSeurat, feature = "TNF", split.by = "tissue_type")
+dev.off()
 ```
+
+More plots
+
+```{r}
+FeaturePlot(scSeurat, feature = "IL18", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL2RA", split.by = "tissue_type")
+```
+
 
 Cluster 2 looks like it generally has more IL genes expressed. Isolate DE genes for this cluster.
 
@@ -140,6 +198,63 @@ VlnPlot(scSeurat, feature = "IL10", split.by = "tissue_type") # More in PMAIO cl
 VlnPlot(scSeurat, feature = "IL12A", split.by = "tissue_type") # A bit more in 1,4,5
 VlnPlot(scSeurat, feature = "TGFB1", split.by = "tissue_type") # Pretty even across all
 VlnPlot(scSeurat, feature = "TNF", split.by = "tissue_type")
+```
+
+Make Violin plots with ggplot
+
+```{r}
+genes <- c("IL2","IL4","IL6","IL6-1","IL7","IL10","IL12A","TGFB1","TNF")
+for(gene in genes) {
+  vln_df = data.frame(gene = scSeurat[["RNA"]]@data[gene,], 
+                      Cluster = Idents(scSeurat), 
+                      tissue_type = scSeurat$tissue_type)
+  plot <- ggplot(vln_df, aes(x = Cluster, y = gene)) + 
+    geom_violin(aes(fill = tissue_type), trim=TRUE, scale = "width") +
+    ylab(gene) +
+    theme_bw()
+  print(plot)
+  pdf(file = paste("figures/stimulation/downsampled_vlnPlot_split_", gene, ".pdf", sep = ""))
+  print(plot) # Need print function because R doesn't autoprint in loops
+  dev.off()
+}
+```
+
+Looking for more genes
+
+```{r}
+gene <- "IL18"
+vln_df = data.frame(gene = scSeurat[["RNA"]]@data[gene,], 
+                    Cluster = Idents(scSeurat), 
+                    tissue_type = scSeurat$tissue_type)
+plot <- ggplot(vln_df, aes(x = Cluster, y = gene)) + 
+  geom_violin(aes(fill = tissue_type), trim=TRUE, scale = "width") +
+  ylab(gene) +
+  theme_bw()
+print(plot)
+```
+
+Perform DE test on T-cells from PMAIO vs unstim T-cells. I see *TNF, IL2RA*, but I also see hepatocyte genes like *ALB-1, STAT3*
+
+```{r}
+# Fetch cells to find out relevant cell barcodes
+barcode_df <- FetchData(scSeurat, vars = c("tissue_type", "integrated_snn_res.0.4"))
+barcode_df$barcode <- rownames(barcode_df)
+# Filter on data subsets and pull barcode names
+cells1 <- barcode_df %>%
+  filter(tissue_type == "6hrs_PMAIO") %>%
+  filter(integrated_snn_res.0.4 %in% c(2,6)) %>%
+  pull(barcode)
+cells2 <- barcode_df %>%
+  filter(tissue_type == "6hrs_unstim") %>%
+  filter(integrated_snn_res.0.4 %in% c(2,6)) %>%
+  pull(barcode)
+# Prep for DE testing
+scSeurat <- PrepSCTFindMarkers(scSeurat)
+# Perform DE test
+de_results <- FindMarkers(scSeurat,
+            ident.1 = cells1,
+            ident.2 = cells2)
+cat(row.names(de_results)[1:100], sep = " ")
 ```
 
 
