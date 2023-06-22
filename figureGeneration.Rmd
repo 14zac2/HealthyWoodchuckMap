@@ -92,6 +92,38 @@ DotPlot(sobj,
   ggtitle("Select features for liver map")
 ```
 
+## Heatmaps
+
+Calculate markers for general cell labels then reset resolution
+
+```{r}
+Idents(sobj) <- "general_cell_labels"
+sobj_markers <- FindAllMarkers(sobj, 
+                               only.pos = TRUE, 
+                               min.pct = 0.25, 
+                               logfc.threshold = 0.25)
+sobj_markers %>%
+    group_by(cluster) %>%
+    slice_max(n = 2, order_by = avg_log2FC)
+Idents(sobj) <- res
+```
+
+
+Generate heatmap with top 5 markers grouping by general cell types
+
+```{r}
+sobj_markers %>%
+    group_by(cluster) %>%
+    top_n(n = 5, wt = avg_log2FC) -> top
+# If liver, select fewer cells
+cells <- sample(colnames(sobj), size = 30000)
+DoHeatmap(sobj, features = top$gene, group.by = "general_cell_labels", size = 3, 
+          angle = 90, cells = cells) +
+  NoLegend() +
+  theme(text = element_text(size = 7))
+```
+
+
 ## Feature plots
 
 Make specific plots with specific genes. The genes we are interested in include: *PTPRC, CALCRL, NKG7, CD3E, MARCO, LYZ, CD19, MS4A1, STAB2, ALB, CD4, CD8A, CLEC4G, CD5L, C1QB, ACTA2, VWF, IGLL5, CD68*
