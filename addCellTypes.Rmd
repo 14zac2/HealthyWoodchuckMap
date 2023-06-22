@@ -1,0 +1,279 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Adding official cell-type labels to Seurat objects based on cluster labels.
+
+Load libraries
+
+```{r}
+library(Seurat)
+library(dplyr)
+```
+
+## Liver map
+
+Read in liver map
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+res <- "integrated_snn_res.1.4"
+Idents(sobj) <- res
+```
+
+View UMAP
+
+```{r}
+DimPlot(sobj, label = TRUE)
+```
+
+Grab cluster IDs and replace with cell-type names
+- Endothelial cells: 0, 5, 11, 30, 32, 33, 41, 42
+- Lymphocytes: 1, 2, 4, 6, 7, 10, 12, 14, 24, 35
+- Lymphocytes 1: 1, 2, 4, 7, 10, 12, 16
+- Lymphocytes 2 (XCL1;XCL2+): 6, 24, 39
+- Lymphocytes 3 (LEF1+): 14
+- Lymphocytes 4 (TOP2A+): 35
+- Myeloid cells: 3, 9, 15, 17, 18, 22, 31, 37, 40, 43
+- Myeloid 1 (CD5L+): 3, 22, 43
+- Myeloid 2 (S100A8+): 9, 18
+- Myeloid 3: 15, 17
+- Myeloid 4 (CST3+): 31
+- Hepatocytes: 8, 13, 16, 19, 20, 21, 25, 28, 36
+- Antibody-secreting B cells: 23
+- Mesenchymal: 26
+- B cells: 27, 44
+- Cholangiocytes: 34, 38
+- Doublets/contamination: 20, 29, 37, 40, 42
+
+Visualise general cell-type markers
+
+```{r}
+# Hepatocytes
+FeaturePlot(sobj, features = c("ALB-1"))
+FeaturePlot(sobj, features = c("CYP2E1","PCK1"))
+# Endothelial
+FeaturePlot(sobj, features = c("STAB2"))
+FeaturePlot(sobj, features = c("RSPO3","MECOM"))
+# Lymphocytes
+FeaturePlot(sobj, features = c("CD3E"))
+FeaturePlot(sobj, features = c("XCL1;XCL2","LEF1"))
+# B cells
+FeaturePlot(sobj, features = c("CD79B", "MS4A1"))
+# Plasma cells
+FeaturePlot(sobj, features = c("JCHAIN"))
+# Myeloid cells
+FeaturePlot(sobj, features = c("LYZ-1","S100A8"))
+FeaturePlot(sobj, features = c("CD5L","C1QB"))
+FeaturePlot(sobj, features = c("CST3","FLT3"))
+# Cholangiocytes
+FeaturePlot(sobj, features = c("KRT19","SLC4A4"))
+# Mast cells
+FeaturePlot(sobj, features = c("Prss29"))
+```
+
+
+```{r}
+clusters <- as.character(Idents(sobj))
+clusters <- gsub('\\b0\\b|\\b5\\b|\\b11\\b|\\b30\\b|\\b32\\b|\\b33\\b|\\b41\\b|\\b42\\b', "Endothelial",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b1\\b|\\b2\\b|\\b4\\b|\\b7\\b|\\b10\\b|\\b12\\b|\\b16\\b', "Lymphocytes 1",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b6\\b|\\b24\\b|\\b39\\b', "Lymphocytes 2",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b3\\b|\\b22\\b|\\b43\\b', "Myeloid 1",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b14\\b', "Lymphocytes 3",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b35\\b', "Lymphocytes 4",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b9\\b|\\b18\\b', "Myeloid 2",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b15\\b|\\b17\\b', "Myeloid 3",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b31\\b', "Myeloid 4",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b8\\b|\\b13\\b|\\b16\\b|\\b19\\b|\\b20\\b|\\b21\\b|\\b25\\b|\\b28\\b|\\b36\\b', "Hepatocytes",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b23\\b', "Antibody-secreting B cells",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b26\\b', "Mesenchymal",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b27\\b|\\b44\\b', "B cells",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b34\\b|\\b38\\b', "Cholangiocytes",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b20\\b|\\b29\\b|\\b37\\b|\\b40\\b|\\b42\\b', "Doublets/Contamination",
+                 clusters,
+                 perl = TRUE)
+levels(as.factor(clusters))
+```
+
+Add as metadata and visualise on UMAP
+
+```{r}
+sobj@meta.data$general_cell_labels <- clusters
+DimPlot(sobj, group.by = "general_cell_labels", label = TRUE)
+```
+
+Save object with labels added
+
+```{r}
+saveRDS(sobj,
+        file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+```
+
+Remove objects from environment
+
+```{r}
+rm(list=ls())
+gc()
+```
+
+
+## PBMC map
+
+Read in PBMC map
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
+sobj <- scSeurat
+res <- "integrated_snn_res.0.6"
+Idents(sobj) <- res
+```
+
+View UMAP
+
+```{r}
+DimPlot(sobj, label = TRUE)
+```
+
+Grab cluster IDs and replace with cell-type names
+- Monocytes: 0, 6, 8, 9, 21, 24
+- Monocytes 1 (CD16+): 0, 21, 24
+- Monocytes 2 (CD14+): 6, 9
+- Monocytes 3 (intermediate?): 8
+- Monocytes 4 (PLAC8+/dendritic?): 14 
+- Lymphocytes: 1, 2, 4, 5, 7, 10, 13, 15, 17
+- Lymphocytes 1: 2, 5, 13, 17
+- Lymphocytes 2 (XCL1;XCL2+): 4, 7
+- Lymphocytes 3 (LEF1+): 1, 10
+- Lymphocytes 4 (dividing): 23
+- Lymphocytes 5 (RHEX+): 15
+- B-cells: 3, 11
+- HSC: 16
+- Plasma B: 18
+- Megakaryocytes: 19
+- Mast cell: 22
+- Erythrocytes: 12
+- Unknown: 20
+
+Visualise general cell-type markers:
+
+```{r}
+# Lymphocytes
+FeaturePlot(sobj, features = c("CD3E","STMN1"))
+FeaturePlot(sobj, features = c("XCL1;XCL2","LEF1"))
+FeaturePlot(sobj, features = c("NKG7","CD5"))
+FeaturePlot(sobj, features = c("CD247","RHEX"))
+# B cells
+FeaturePlot(sobj, features = c("BANK1", "MS4A1"))
+# Plasma cells
+FeaturePlot(sobj, features = c("JCHAIN"))
+# Myeloid cells
+FeaturePlot(sobj, features = c("S100A8"))
+FeaturePlot(sobj, features = c("CD14","FCGR3A;FCGR3B"))
+FeaturePlot(sobj, features = c("Fcgr3;Fcgr2b","FLT3"))
+FeaturePlot(sobj, features = c("CST3","FLT3"))
+# Megakaryocytes
+FeaturePlot(sobj, features = c("GP9","TREML1"))
+# Mast cells
+FeaturePlot(sobj, features = c("Prss29","Prss34"))
+# Erythrocytes
+FeaturePlot(sobj, features = c("HBA2;HBA1"))
+```
+
+
+```{r}
+clusters <- as.character(Idents(sobj))
+clusters <- gsub('\\b3\\b|\\b11\\b', "B cells",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b1\\b|\\b10\\b', "Lymphocytes 3",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b2\\b|\\b5\\b|\\b13\\b|\\b17\\b', "Lymphocytes 1",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b4\\b|\\b7\\b', "Lymphocytes 2",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b0\\b|\\b21\\b|\\b24\\b', "Monocytes 1",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b23\\b', "Lymphocytes 4",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b15\\b', "Lymphocytes 5",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b6\\b|\\b9\\b', "Monocytes 2",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b8\\b', "Monocytes 3",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b14\\b', "Monocytes 4",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b18\\b', "Plasma B cells",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b16\\b', "Hematopoietic stem cells",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b19\\b', "Megakaryocytes",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b22\\b', "Mast cells",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b12\\b', "Erythrocytes",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b20\\b', "Unknown",
+                 clusters,
+                 perl = TRUE)
+levels(as.factor(clusters))
+```
+
+Add as metadata and visualise on UMAP
+
+```{r}
+sobj@meta.data$general_cell_labels <- clusters
+DimPlot(sobj, group.by = "general_cell_labels", label = TRUE)
+```
+
+Save object with labels added
+
+```{r}
+scSeurat <- sobj
+save(sCVdata_list, scSeurat,
+     file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
+```
+
