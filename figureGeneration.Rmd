@@ -14,6 +14,8 @@ library(Seurat)
 library(scClustViz)
 library(ggplot2)
 library(dplyr)
+library(rcartocolor)
+library(SeuratWrappers)
 ```
 
 Read in liver map
@@ -22,6 +24,7 @@ Read in liver map
 sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
 res <- "integrated_snn_res.1.4"
 Idents(sobj) <- res
+tissue <- "liver"
 ```
 
 Read in PBMC map
@@ -31,6 +34,7 @@ load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/
 sobj <- scSeurat
 res <- "integrated_snn_res.0.6"
 Idents(sobj) <- res
+tissue <- "PBMC"
 ```
 
 ## Visualization of metadata
@@ -38,13 +42,21 @@ Idents(sobj) <- res
 UMAP with no cluster numbers
 
 ```{r}
-DimPlot(sobj, label = FALSE) & NoLegend()
+plot <- DimPlot(sobj, label = FALSE) & NoLegend()
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_UMAP_clusters_noLabels.pdf", sep = ""))
+plot
+dev.off()
 ```
 
 UMAP with cluster numbers
 
 ```{r}
-DimPlot(sobj, label = TRUE)
+plot <- DimPlot(sobj, label = TRUE)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_UMAP_clusters_labels.pdf", sep = ""))
+plot
+dev.off()
 ```
 
 Map with SCINA-generated cell-type labels
@@ -53,13 +65,47 @@ Map with SCINA-generated cell-type labels
 DimPlot(sobj, group.by = "scina_labels_refined", label = TRUE) & NoLegend()
 ```
 
+Map with general cell-type labels for paper
+
+```{r}
+plot <- DimPlot(sobj, group.by = "general_cell_labels",
+        label = TRUE, repel = TRUE) +
+  ggtitle(NULL)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_UMAP_general_cell_labels.pdf", sep = ""),
+    height = 7,
+    width = 9)
+plot
+dev.off()
+```
+
+Map grouping by general cell type labels but with no labels on plot
+
+```{r}
+plot <- DimPlot(sobj, group.by = "general_cell_labels") +
+  ggtitle(NULL) &
+  NoLegend()
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_UMAP_general_cell_labels_noLabels.pdf", 
+          sep = ""))
+plot
+dev.off()
+```
+
 Map with original identities
 
 ```{r}
-DimPlot(sobj, group.by = "orig.ident")
+plot <- DimPlot(sobj, group.by = "orig.ident",
+        cols = carto_pal(length(levels(as.factor(sobj$orig.ident))), "Safe")) +
+  ggtitle(NULL)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_UMAP_orig_idents.pdf", 
+          sep = ""))
+plot
+dev.off()
 ```
 
-Barplot with original identities
+Barplot with original identities on a cluster-level grouping:
 
 ```{r}
 # Meta data to plot:
@@ -79,6 +125,38 @@ ggplot(df, aes(x = get(res), fill = orig.ident)) +
   theme(axis.text = element_text(size = 7))
 ```
 
+Barplot with original identities on a grouped by general cell labels:
+
+```{r}
+df <- sobj@meta.data
+plot1 <- ggplot(df, aes(x = general_cell_labels, fill = orig.ident)) +
+  geom_bar() +
+  scale_fill_carto_d(name = NULL, palette = "Safe") +
+  theme_bw() +
+  theme(axis.text = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.title.x = element_blank()) +
+  ylab("Number of cells")
+plot1
+pdf(paste("./figures/", tissue, "/", tissue, "_barplot_orig_ident_counts.pdf", 
+          sep = ""))
+plot1
+dev.off()
+# Plot as proportion or percentage of cluster
+plot2 <- ggplot(df, aes(x = general_cell_labels, fill = orig.ident)) +
+  geom_bar(position = "fill") +
+  scale_fill_carto_d(name = NULL, palette = "Safe") +
+  theme_bw() +
+  theme(axis.text = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.title.x = element_blank()) +
+  ylab("Proportion of cells")
+plot2
+pdf(paste("./figures/", tissue, "/", tissue, "_barplot_orig_ident_proportions.pdf", 
+          sep = ""))
+plot2
+dev.off()
+```
 
 ## Dotplots
 
@@ -98,29 +176,64 @@ Calculate markers for general cell labels then reset resolution
 
 ```{r}
 Idents(sobj) <- "general_cell_labels"
-sobj_markers <- FindAllMarkers(sobj, 
-                               only.pos = TRUE, 
-                               min.pct = 0.25, 
-                               logfc.threshold = 0.25)
+sobj_markers <- RunPrestoAll(sobj, 
+                             only.pos = TRUE, 
+                             min.pct = 0.25, 
+                             logfc.threshold = 0.25)
 sobj_markers %>%
     group_by(cluster) %>%
     slice_max(n = 2, order_by = avg_log2FC)
 Idents(sobj) <- res
 ```
 
+Save markers
+
+```{r}
+groups = "general_cell_labels"
+write.table(sobj_markers,
+            file = paste("./figures/", tissue, "/",
+                         tissue, "_markers_", groups, ".tsv", 
+                         sep = ""),
+            quote = FALSE,
+            sep = "\t",
+            row.names = FALSE,
+            col.names = TRUE)
+```
+
 
 Generate heatmap with top 5 markers grouping by general cell types
 
 ```{r}
+tissue <- "liver"
+# Remove mikado genes from marker list
+sobj_markers <- sobj_markers[grep("mikado", rownames(sobj_markers), invert = TRUE),]
 sobj_markers %>%
     group_by(cluster) %>%
     top_n(n = 5, wt = avg_log2FC) -> top
 # If liver, select fewer cells
-cells <- sample(colnames(sobj), size = 30000)
+if (tissue == "liver") {
+  cells <- sample(colnames(sobj), size = 30000)
+} else if (tissue == "PBMC") {
+  cells <- colnames(sobj)
+}
 DoHeatmap(sobj, features = top$gene, group.by = "general_cell_labels", size = 3, 
           angle = 90, cells = cells) +
   NoLegend() +
   theme(text = element_text(size = 7))
+```
+
+Make PDF of heatmap
+
+```{r}
+groups <- "general_cell_labels"
+pdf(paste("./figures/", tissue, "/", tissue, "_heatmap_", groups, ".pdf", sep = ""),
+    height = 11,
+    width = 7)
+DoHeatmap(sobj, features = top$gene, group.by = "general_cell_labels", size = 2, 
+          angle = 90, cells = cells) +
+  NoLegend() +
+  theme(text = element_text(size = 7))
+dev.off()
 ```
 
 
