@@ -166,13 +166,40 @@ FeaturePlot(scSeurat, feature = "TNF", split.by = "tissue_type")
 pdf(file = "figures/stimulation/downsampled_UMAP_split_TNF.pdf")
 FeaturePlot(scSeurat, feature = "TNF", split.by = "tissue_type")
 dev.off()
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL18.pdf")
+FeaturePlot(scSeurat, feature = "IL18", split.by = "tissue_type")
+dev.off()
+pdf(file = "figures/stimulation/downsampled_UMAP_split_IL2RA.pdf")
+FeaturePlot(scSeurat, feature = "IL2RA", split.by = "tissue_type")
+dev.off()
 ```
 
 More plots
 
 ```{r}
-FeaturePlot(scSeurat, feature = "IL18", split.by = "tissue_type")
-FeaturePlot(scSeurat, feature = "IL2RA", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL15", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL16", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL17B", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL6ST", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL31RA", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL7R", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL7R-1", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL17D", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL5RA", split.by = "tissue_type") 
+FeaturePlot(scSeurat, feature = "IL17RE", split.by = "tissue_type") 
+FeaturePlot(scSeurat, feature = "IL17RC", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL17C", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL34", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL4I1", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL11", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL9R", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL4R", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL21R", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL27", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "ILK", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL18BP", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL10RA", split.by = "tissue_type")
+
 ```
 
 
@@ -203,7 +230,7 @@ VlnPlot(scSeurat, feature = "TNF", split.by = "tissue_type")
 Make Violin plots with ggplot
 
 ```{r}
-genes <- c("IL2","IL4","IL6","IL6-1","IL7","IL10","IL12A","TGFB1","TNF")
+genes <- c("IL2","IL4","IL6","IL6-1","IL7","IL10","IL12A","TGFB1","TNF","IL18","IL2RA")
 for(gene in genes) {
   vln_df = data.frame(gene = scSeurat[["RNA"]]@data[gene,], 
                       Cluster = Idents(scSeurat), 
