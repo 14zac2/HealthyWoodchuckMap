@@ -29,7 +29,7 @@ DimPlot(sobj, label = TRUE)
 ```
 
 Grab cluster IDs and replace with cell-type names
-- Endothelial cells: 0, 5, 11, 30, 32, 33, 41, 42
+- Endothelial cells: 0, 5, 8, 11, 30, 32, 33, 41, 42
 - Lymphocytes: 1, 2, 4, 6, 7, 10, 12, 14, 24, 35
 - Lymphocytes 1: 1, 2, 4, 7, 10, 12, 16
 - Lymphocytes 2 (XCL1;XCL2+): 6, 24, 39
@@ -40,7 +40,7 @@ Grab cluster IDs and replace with cell-type names
 - Myeloid 2 (S100A8+): 9, 18
 - Myeloid 3: 15, 17
 - Myeloid 4 (CST3+): 31
-- Hepatocytes: 8, 13, 16, 19, 20, 21, 25, 28, 36
+- Hepatocytes: 13, 16, 19, 20, 21, 25, 28, 36
 - Antibody-secreting B cells: 23
 - Mesenchymal: 26
 - B cells: 27, 44
@@ -54,7 +54,7 @@ Visualise general cell-type markers
 FeaturePlot(sobj, features = c("ALB-1"))
 FeaturePlot(sobj, features = c("CYP2E1","PCK1"))
 # Endothelial
-FeaturePlot(sobj, features = c("STAB2"))
+FeaturePlot(sobj, features = c("STAB2","CLEC4G"))
 FeaturePlot(sobj, features = c("RSPO3","MECOM"))
 # Lymphocytes
 FeaturePlot(sobj, features = c("CD3E"))
@@ -76,7 +76,7 @@ FeaturePlot(sobj, features = c("Prss29"))
 
 ```{r}
 clusters <- as.character(Idents(sobj))
-clusters <- gsub('\\b0\\b|\\b5\\b|\\b11\\b|\\b30\\b|\\b32\\b|\\b33\\b|\\b41\\b|\\b42\\b', "Endothelial",
+clusters <- gsub('\\b0\\b|\\b5\\b|\\b8\\b|\\b11\\b|\\b30\\b|\\b32\\b|\\b33\\b|\\b41\\b|\\b42\\b', "Endothelial",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b1\\b|\\b2\\b|\\b4\\b|\\b7\\b|\\b10\\b|\\b12\\b|\\b16\\b', "Lymphocytes 1",
@@ -103,7 +103,7 @@ clusters <- gsub('\\b15\\b|\\b17\\b', "Myeloid 3",
 clusters <- gsub('\\b31\\b', "Myeloid 4",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b8\\b|\\b13\\b|\\b16\\b|\\b19\\b|\\b20\\b|\\b21\\b|\\b25\\b|\\b28\\b|\\b36\\b', "Hepatocytes",
+clusters <- gsub('\\b13\\b|\\b16\\b|\\b19\\b|\\b20\\b|\\b21\\b|\\b25\\b|\\b28\\b|\\b36\\b', "Hepatocytes",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b23\\b', "Antibody-secreting B cells",
