@@ -298,15 +298,17 @@ Generate heatmaps comparing woodchuck clusters with various datasets
 First, set up whatever woodchuck dataset I am working with by reading in the ortholog table, choosing whether the orthologs to use are human, mouse, or woodchuck, and calculating the average expression for each cluster. The output of this section is the scaled cluster gene-expression matrix
 
 ```{r}
+groups <- "general_cell_labels"
 # Read in ortholog table
 geneNameTable <- read.table("~/Dropbox/Zoe/scf_version/make_gtf/orthofinder_sc2/homologene/collectedOrthofinderPairings.tsv",
                             sep = "\t",
                             header = TRUE)
 woodchuckClusterAverages <- AverageExpression(sobj,
                                               assays = "SCT",
-                                              slot = "scale.data")
+                                              slot = "scale.data",
+                                              group.by = groups)
 # Scale data
-woodchuckClusterAverages$SCT <- na.omit(t(scale(t(woodchuckClusterAverages$SCT))))
+woodchuckClusterAverages$SCT <- na.omit(t(scale(t(as.matrix(woodchuckClusterAverages$SCT)))))
 # Grab gene names from Seurat object
 uniqueHier <- row.names(woodchuckClusterAverages$SCT)
 uniqueHier <- as.data.frame(uniqueHier)
@@ -331,6 +333,8 @@ row.names(woodchuckClusterAverages) <- newNames$speciesOneToOne
 woodchuckClusterAverages <- as.data.frame(woodchuckClusterAverages)
 # Order by gene name
 woodchuckClusterAverages <- woodchuckClusterAverages[order(row.names(woodchuckClusterAverages)),]
+# Sanity check
+head(woodchuckClusterAverages)
 ```
 
 ### Dataset-specific setup
@@ -378,6 +382,9 @@ colnames(allCellsMatrix) <- c("Activated CD8+", "Naive CD8+", "Memory and Reg T"
 allCellsMatrix <- t(scale(t(allCellsMatrix)))
 # Order genes alphabetically by gene name
 allCellsMatrix <- allCellsMatrix[order(row.names(allCellsMatrix)),]
+# Sanity check
+head(allCellsMatrix)
+speciesData <- "68KPBMC"
 ```
 
 Correlation of woodchuck liver with human liver dataset from MacParland *et al.* (2018)
@@ -402,13 +409,16 @@ colnames(humanClusterAverages$SCT) <- c("Hep 1", "Alpha-beta T cells", "Hep 2",
 # If only looking at specific clusters
 #humanClusterAverages$SCT <- humanClusterAverages$SCT[,c("3","1","15","6","14","5")]
 # Otherwise go straight to here:
-humanClusterAverages$SCT <- na.omit(t(scale(t(humanClusterAverages$SCT))))
+humanClusterAverages$SCT <- na.omit(t(scale(t(as.matrix(humanClusterAverages$SCT)))))
 # Grab gene names
 humanGenes <- row.names(humanClusterAverages$SCT)
 # Now turn into large dataframe
 allCellsMatrix <- as.data.frame(humanClusterAverages$SCT)
 # Order by row name
 allCellsMatrix <- allCellsMatrix[order(row.names(allCellsMatrix)),]
+# Sanity check
+head(allCellsMatrix)
+speciesData <- "macparland"
 ```
 
 Correlation of woodchuck liver with human liver dataset from Aizarani *et al.*
@@ -430,35 +440,81 @@ Idents(aizarani) <- aizaraniClusters$sct.cpart
 aizaraniAverages <- AverageExpression(aizarani,
                                       assays = "SCT",
                                       slot = "scale.data")
-aizaraniAverages$SCT <- na.omit(t(scale(t(aizaraniAverages$SCT))))
+aizaraniAverages$SCT <- na.omit(t(scale(t(as.matrix(aizaraniAverages$SCT)))))
 # Grab gene names
 aizaraniGenes <- row.names(aizaraniAverages$SCT)
 # Now turn into large dataframe
 allCellsMatrix <- as.data.frame(aizaraniAverages$SCT)
+# Order by column
+allCellsMatrix <- allCellsMatrix[,as.character(sort(as.numeric(colnames(allCellsMatrix))))]
+# Rename columns to be more meaningful (not totally confident I got all correct)
+colnames(allCellsMatrix) <- c('NK, NKT and T cells (1)',
+                              'Kupffer cells (2)',
+                              'NK, NKT and T cells (3)',
+                              'EPCAM+ cells and cholangiocytes (4)',
+                              'NK, NKT and T cells (5)',
+                              'Kupffer cells (6)',
+                              'EPCAM+ cells and cholangiocytes (7)',
+                              'B cells (8)',
+                              'Liver sinusoidal endothelial cells (9)',
+                              'Macrovascular endothelial cells (10)',
+                              'Hepatocytes (11)',
+                              'NK, NKT and T cells (12)',
+                              'Liver sinusoidal endothelial cells (13)',
+                              'Hepatocytes (14)',
+                              'Other endothelial cells (15)',
+                              'Other (16)',
+                              'Hepatocytes (17)',
+                              'NK, NKT and T cells (18)',
+                              'NK, NKT and T cells (19)',
+                              'Liver sinusoidal endothelial cells (20)',
+                              'Macrovascular endothelial cells (21)',
+                              'B cells (22)',
+                              'Kupffer cells (23)',
+                              'EPCAM+ cells and cholangiocytes (24)',
+                              'Kupffer cells (25)',
+                              'Other endothelial cells (26)',
+                              'Other (27)',
+                              'NK, NKT and T cells (28)',
+                              'Macrovascular endothelial cells (29)',
+                              'Hepatocytes (30)',
+                              'Kupffer cells (31)',
+                              'Macrovascular endothelial cells (32)',
+                              'Stellate cells and myofibroblasts (33)',
+                              'B cells (34)',
+                              'Other endothelial cells (35)',
+                              'Other (36)',
+                              'Other (37)',
+                              'B cells (38)',
+                              'EPCAM+ cells and cholangiocytes (39)')
 # Order by row name
 allCellsMatrix <- allCellsMatrix[order(row.names(allCellsMatrix)),]
+# Sanity check
+head(allCellsMatrix)
+speciesData <- "aizarani"
 ```
 
 Correlation of woodchuck liver with woodchuck PBMCs. For this correlation, read in the woodchuck liver dataset at the beginning of this script and then read in the woodchuck PBMCs below
 
 ```{r}
+groups <- "general_cell_labels"
 # Start with liver and read in woodchuck PBMCs again
 load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
 Idents(scSeurat) <- "integrated_snn_res.0.6"
 # Find cluster averages
 pbmcClusterAverages <- AverageExpression(scSeurat,
                                          assays = "SCT",
-                                         slot = "scale.data")
-pbmcClusterAverages <- as.data.frame(na.omit(t(scale(t(pbmcClusterAverages$SCT)))))
+                                         slot = "scale.data",
+                                         group.by = groups)
+pbmcClusterAverages <- as.data.frame(na.omit(t(scale(t(as.matrix(pbmcClusterAverages$SCT))))))
 # Order by row name
 allCellsMatrix <- pbmcClusterAverages[order(row.names(pbmcClusterAverages)),]
+speciesData <- "PBMC"
 ```
 
 ### Output plots for all correlations
 
 ```{r}
-speciesData <- "Human Liver (Aizarani et al.)"
-woodchuckData <- "Woodchuck Liver"
 # Now find intersecting genes
 matches <- intersect(row.names(allCellsMatrix),
                      row.names(woodchuckClusterAverages))
@@ -469,22 +525,30 @@ toCor <- allCellsMatrix[matches,]
 woodchuckAveragesCor <- woodchuckClusterAverages[matches,]
 # Do Pearson
 pearVal <- cor(toCor, woodchuckAveragesCor, method = "pearson")
-heatmap(pearVal,
-        main = paste("Pearson correlation of", speciesData, "vs", woodchuckData),
-        xlab = woodchuckData,
-        ylab = speciesData)
+heatmap(pearVal)
+        #main = paste("Pearson correlation of", speciesData, "vs", woodchuckData),
+        #xlab = woodchuckData,
+        #ylab = speciesData)
         #margins = c(6,11))
 #Rowv = NA,
 #Colv = NA)
+pdf(paste("./figures/", tissue, "/", tissue, "_", speciesData, "_PearsonCor.pdf", sep = ""),
+    height = 13, width = 13)
+heatmap(pearVal, margins = c(13,13))
+dev.off()
 # Do Spearman
 spearVal <- cor(toCor, woodchuckAveragesCor, method = "spearman")
-heatmap(spearVal,
-        main = paste("Spearman correlation of", speciesData, "vs", woodchuckData),
-        xlab = woodchuckData,
-        ylab = speciesData)
+heatmap(spearVal)
+        #main = paste("Spearman correlation of", speciesData, "vs", woodchuckData),
+        #xlab = woodchuckData,
+        #ylab = speciesData)
         #margins = c(6,11))
 #Rowv = NA,
 #Colv = NA)
+pdf(paste("./figures/", tissue, "/", tissue, "_", speciesData, "_SpearmanCor.pdf", sep = ""),
+    height = 13, width = 13)
+heatmap(spearVal, margins = c(13,13))
+dev.off()
 ```
 
 
