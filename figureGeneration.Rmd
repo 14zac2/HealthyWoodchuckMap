@@ -200,11 +200,9 @@ write.table(sobj_markers,
             col.names = TRUE)
 ```
 
-
 Generate heatmap with top 5 markers grouping by general cell types
 
 ```{r}
-tissue <- "liver"
 # Remove mikado genes from marker list
 sobj_markers <- sobj_markers[grep("mikado", rownames(sobj_markers), invert = TRUE),]
 sobj_markers %>%
@@ -239,7 +237,7 @@ dev.off()
 
 ## Feature plots
 
-Make specific plots with specific genes. The genes we are interested in include: *PTPRC, CALCRL, NKG7, CD3E, MARCO, LYZ, CD19, MS4A1, STAB2, ALB, CD4, CD8A, CLEC4G, CD5L, C1QB, ACTA2, VWF, IGLL5, CD68*
+Make specific plots with specific genes. The genes we are interested in include: *PTPRC, CALCRL, NKG7, CD3E, MARCO, LYZ, CD19, MS4A1, STAB2, ALB, CD4, CD8A, CLEC4G, CD5L, C1QB, ACTA2, VWF, IGLL5, CD68*. Can also plot in italics.
 
 ```{r}
 geneCode <- "sct_LYZ-1" # Woodchuck-specific nomenclature for this genome
@@ -247,13 +245,48 @@ gene <- "LYZ"
 mapType <- "Liver"
 FeaturePlot(sobj, features = geneCode) +
   ggtitle(paste(gene, "-", mapType, "map"))
+FeaturePlot(sobj, features = geneCode) +
+  ggtitle(bquote(~italic(.(gene))))
 ```
 
 Another version of the feature plot that outputs genes in italics
 
 ```{r}
-FeaturePlot(sobj, features = geneCode) +
-  ggtitle(expression(italic(gene)))
+if (tissue == "PBMC") {
+ geneCodes <- c("sct_PTPRC","sct_NKG7","sct_CD14",
+               "sct_CD3E","sct_MARCO","sct_LYZ-1",
+               "sct_CD19","sct_MS4A1","sct_STAB2",
+               "sct_CD4","sct_CD8A", "sct_XCL1;XCL2",
+               "sct_CD5L","sct_C1QB", "sct_LEF1",
+               "sct_ACTA2","sct_VWF","sct_IGLL5-1",
+               "sct_CD68","sct_FCGR3A;FCGR3B","sct_TOP2A")
+ genes <- c("PTPRC","NKG7","CD14","CD3E","MARCO","LYZ",
+           "CD19","MS4A1","STAB2","CD4","CD8A", "XCL1;XCL2",
+           "CD5L","C1QB","LEF1","ACTA2","VWF","IGLL5","CD68",
+           "FCGR3A;FCGR3B","TOP2A") 
+} else if (tissue == "liver") {
+  geneCodes <- c("sct_Ptprc","sct_CALCRL","sct_NKG7",
+                 "sct_CD3E","sct_MARCO","sct_LYZ-1",
+                 "sct_CD19","sct_MS4A1","sct_STAB2",
+                 "sct_ALB-1","sct_CD4","sct_CD8A",
+                 "sct_CLEC4G","sct_CD5L","sct_C1QB",
+                 "sct_ACTA2","sct_VWF","sct_IGLL5-1",
+                 "sct_CD68","sct_XCL1;XCL2","sct_LEF1",
+                 "sct_RSPO3","sct_MECOM")
+  genes <- c("PTPRC","CALCRL","NKG7","CD3E","MARCO","LYZ",
+             "CD19","MS4A1","STAB2","ALB","CD4","CD8A",
+             "CLEC4G","CD5L","C1QB","ACTA2","VWF","IGLL5","CD68",
+             "XCL1;XCL2","LEF1","RSPO3","MECOM") 
+}
+for(num in 2:length(geneCodes)) {
+  plot <- FeaturePlot(sobj,
+                      features = geneCodes[num]) +
+    ggtitle(bquote(~italic(.(genes[num]))))
+  print(plot)
+  pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
+  print(plot)
+  dev.off()
+}
 ```
 
 ## Correlation plots
