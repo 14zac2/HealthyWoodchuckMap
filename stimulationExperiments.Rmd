@@ -20,14 +20,9 @@ Load integrated object. This object has been integrated with CCA, because there 
 
 ```{r}
 load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
-```
-
-Set identities:
-
-```{r}
+# Set identity
 Idents(scSeurat) <- "integrated_snn_res.0.4"
 ```
-
 
 Check out the UMAP of clusters, original identities, and refined SCINA labels.
 
@@ -122,56 +117,13 @@ dev.off()
 Now let's take a look at the features on this split plot.
 
 ```{r}
-FeaturePlot(scSeurat, feature = "IL2", split.by = "tissue_type") # Only in PMAIO cluster 2
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL2.pdf")
-FeaturePlot(scSeurat, feature = "IL2", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "IL4", split.by = "tissue_type") # Only in PMAIO cluster 2
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL4.pdf")
-FeaturePlot(scSeurat, feature = "IL4", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "IL6", split.by = "tissue_type") # Stronger in endo and mesem PMAIO
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL6.pdf")
-FeaturePlot(scSeurat, feature = "IL6", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "IL6-1", split.by = "tissue_type") # No signal
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL6-1.pdf")
-FeaturePlot(scSeurat, feature = "IL6", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "IL7", split.by = "tissue_type") # More in PMAIO cluster 4/5
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL7.pdf")
-FeaturePlot(scSeurat, feature = "IL7", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "IL10", split.by = "tissue_type") # More in PMAIO cluster 2
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL10.pdf")
-FeaturePlot(scSeurat, feature = "IL10", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "IL12A", split.by = "tissue_type") # No signal
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL12A.pdf")
-FeaturePlot(scSeurat, feature = "IL12A", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "TGFB1", split.by = "tissue_type") # Pretty even across all
-pdf(file = "figures/stimulation/downsampled_UMAP_split_TGFB1.pdf")
-FeaturePlot(scSeurat, feature = "TGFB1", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "IFNG", split.by = "tissue_type") # More in PMAIO cluster 2
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IFNG.pdf")
-FeaturePlot(scSeurat, feature = "IFNG", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "TGFA", split.by = "tissue_type")
-pdf(file = "figures/stimulation/downsampled_UMAP_split_TGFA.pdf")
-FeaturePlot(scSeurat, feature = "TGFA", split.by = "tissue_type")
-dev.off()
-FeaturePlot(scSeurat, feature = "TNF", split.by = "tissue_type")
-pdf(file = "figures/stimulation/downsampled_UMAP_split_TNF.pdf")
-FeaturePlot(scSeurat, feature = "TNF", split.by = "tissue_type")
-dev.off()
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL18.pdf")
-FeaturePlot(scSeurat, feature = "IL18", split.by = "tissue_type")
-dev.off()
-pdf(file = "figures/stimulation/downsampled_UMAP_split_IL2RA.pdf")
-FeaturePlot(scSeurat, feature = "IL2RA", split.by = "tissue_type")
-dev.off()
+genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF")
+for (gene in genes) {
+  print(FeaturePlot(scSeurat, feature = gene, split.by = "tissue_type"))
+  pdf(paste("figures/stimulation/downsampled_UMAP_split_", gene, ".pdf", sep = ""))
+  print(FeaturePlot(scSeurat, feature = gene, split.by = "tissue_type"))
+  dev.off()
+}
 ```
 
 More plots
@@ -199,7 +151,17 @@ FeaturePlot(scSeurat, feature = "IL27", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "ILK", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "IL18BP", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "IL10RA", split.by = "tissue_type")
-
+FeaturePlot(scSeurat, feature = "IL3", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "CSF2", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IFNK", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL9", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL13", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "OSM", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "LIF", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "STAT1", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "STAT4", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL4", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL4I1", split.by = "tissue_type")
 ```
 
 
@@ -230,7 +192,7 @@ VlnPlot(scSeurat, feature = "TNF", split.by = "tissue_type")
 Make Violin plots with ggplot
 
 ```{r}
-genes <- c("IL2","IL4","IL6","IL6-1","IL7","IL10","IL12A","TGFB1","TNF","IL18","IL2RA")
+genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF")
 for(gene in genes) {
   vln_df = data.frame(gene = scSeurat[["RNA"]]@data[gene,], 
                       Cluster = Idents(scSeurat), 
