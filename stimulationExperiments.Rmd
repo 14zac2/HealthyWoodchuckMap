@@ -37,7 +37,8 @@ pdf(file = './figures/stimulation/downsampled_UMAP.pdf')
 DimPlot(scSeurat, label = TRUE)
 dev.off()
 pdf(file = './figures/stimulation/downsampled_tissue_type_UMAP.pdf')
-DimPlot(scSeurat, group.by = "tissue_type", label = TRUE) & NoLegend()
+DimPlot(scSeurat, group.by = "tissue_type") +
+  ggtitle(NULL)
 dev.off()
 ```
 
@@ -163,6 +164,11 @@ FeaturePlot(scSeurat, feature = "STAT1", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "STAT4", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "IL4", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "IL4I1", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "CD69", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "TLR7", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "HLA-DRA", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "IL12A", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "TLR2", split.by = "tissue_type")
 ```
 
 
