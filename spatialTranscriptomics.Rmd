@@ -12,7 +12,7 @@ library(Seurat)
 library(ggplot2)
 library(patchwork)
 library(dplyr)
-library(ggpubr)
+#library(ggpubr)
 ```
 
 Load merged liver slices and set identity
@@ -48,5 +48,18 @@ for (gene in genes) {
 }
 ```
 
+Calculate markers
+
+```{r}
+all.markers <- FindAllMarkers(sobj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25,
+                              recorrect_umi = FALSE)
+top.markers <- all.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+top.markers
+write.table(all.markers,
+            file = "./figures/spatial/merged_spatial_markers.tsv",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+```
 
 
