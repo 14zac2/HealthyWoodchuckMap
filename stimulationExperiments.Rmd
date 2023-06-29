@@ -37,7 +37,7 @@ pdf(file = './figures/stimulation/downsampled_UMAP.pdf')
 DimPlot(scSeurat, label = TRUE)
 dev.off()
 pdf(file = './figures/stimulation/downsampled_tissue_type_UMAP.pdf')
-DimPlot(scSeurat, group.by = "scina_labels", label = TRUE) & NoLegend()
+DimPlot(scSeurat, group.by = "tissue_type", label = TRUE) & NoLegend()
 dev.off()
 ```
 
@@ -64,6 +64,7 @@ Look for T-cell signatures.
 FeaturePlot(scSeurat, features = c("CD3E", "NKG7"))
 FeaturePlot(scSeurat, features = c("LEF1", "XCL1;XCL2"))
 FeaturePlot(scSeurat, features = c("TOX", "CD8A"))
+FeaturePlot(scSeurat, features = c("CCR7"))
 ```
 
 Look for macrophage signatures:
