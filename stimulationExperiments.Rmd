@@ -59,6 +59,23 @@ plot
 dev.off()
 ```
 
+Calculate all DE genes
+
+```{r}
+all.markers <- FindAllMarkers(scSeurat,
+                              only.pos = TRUE,
+                              min.pct = 0.25, 
+                              logfc.threshold = 0.25,
+                              recorrect_umi = FALSE)
+top.markers <- all.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+top.markers
+write.table(all.markers,
+            file = "./figures/stimulation/downsampled_cluster_markers.tsv",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE)
+```
+
 Look for T-cell signatures.
 
 ```{r}
