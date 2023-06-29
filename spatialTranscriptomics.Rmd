@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Analysis and visualisation of spatial transcriptomics data. Generally followed [this Seurat workflow](https://satijalab.org/seurat/archive/v3.2/spatial_vignette.html).
+
+Load libraries
+
+```{r}
+library(Seurat)
+library(ggplot2)
+library(patchwork)
+library(dplyr)
+library(ggpubr)
+```
+
+Load merged liver slices and set identity
+
+```{r}
+sobj <- readRDS("../spatial/merged_spatial_sobj.RDS")
+Idents(sobj) <- "SCT_snn_res.0.2"
+```
+
+Visualise clusters on spatial plot
+
+```{r}
+plot1 <- SpatialDimPlot(sobj, alpha = 0.7, images = 'slice1') & NoLegend()
+plot2 <- SpatialDimPlot(sobj, alpha = 0.7, images = 'slice1.1') +
+  labs(fill = "Cluster")
+plot1 + plot2
+pdf("./figures/spatial/merged_dimPlot_UMAP.pdf")
+plot1 + plot2
+dev.off()
+```
+
+Visualise features on spatial plot
+
+```{r}
+genes <- c("CYP2E1","FETUB","HMGCS1","APOC2","Saa2;Saa1-1","HAMP")
+for (gene in genes) {
+  plot1 <- SpatialFeaturePlot(sobj, features = gene, images = 'slice1') & NoLegend()
+  plot2 <- SpatialFeaturePlot(sobj, features = gene, images = 'slice1.1') & NoLegend()
+  print(plot1 + plot2)
+  pdf(paste("./figures/spatial/merged_spatialPlot_", gene, ".pdf", sep = ""))
+  print(plot1 + plot2)
+  dev.off()
+}
+```
+
+
+
