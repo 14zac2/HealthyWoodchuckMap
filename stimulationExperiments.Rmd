@@ -14,6 +14,7 @@ library(Seurat)
 library(dplyr)
 library(ggplot2)
 library(scClustViz)
+library(SeuratWrappers)
 ```
 
 Load integrated object. This object has been integrated with CCA, because there was lots of batch effect between the 0hr tissue and the other two experiments (which merged quite well).
@@ -76,6 +77,28 @@ write.table(all.markers,
             row.names = FALSE)
 ```
 
+Calculate DE genes: for each cluster, compare stim VS unstim
+
+```{r}
+for (clust in levels(as.factor(Idents(scSeurat)))) {
+  cells_stim <- colnames(scSeurat)[Idents(scSeurat) == clust & scSeurat$tissue_type == "6hrs_PMAIO"]
+  cells_unstim <- colnames(scSeurat)[Idents(scSeurat) == clust & scSeurat$tissue_type == "6hrs_unstim"]
+  markers <- RunPresto(scSeurat,
+                       ident.1 = cells_stim,
+                       ident.2 = cells_unstim,
+                       only.pos = FALSE,
+                       min.pct = 0.25,
+                       logfc.threshold = 0.25,
+                       recorrect_umi = FALSE)
+  write.table(markers,
+              file = paste("./figures/stimulation/downsampled_markers_cluster", 
+                           clust ,"_stim_vs_unstim.tsv", sep = ""),
+              sep = "\t",
+              quote = FALSE,
+              row.names = FALSE)
+}
+```
+
 Look for T-cell signatures.
 
 ```{r}
@@ -136,7 +159,7 @@ dev.off()
 Now let's take a look at the features on this split plot.
 
 ```{r}
-genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF")
+genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF", "CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4")
 for (gene in genes) {
   print(FeaturePlot(scSeurat, feature = gene, split.by = "tissue_type"))
   pdf(paste("figures/stimulation/downsampled_UMAP_split_", gene, ".pdf", sep = ""))
