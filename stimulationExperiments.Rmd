@@ -239,7 +239,7 @@ VlnPlot(scSeurat, feature = "TNF", split.by = "tissue_type")
 Make Violin plots with ggplot
 
 ```{r}
-genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF")
+genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF","CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4")
 for(gene in genes) {
   vln_df = data.frame(gene = scSeurat[["RNA"]]@data[gene,], 
                       Cluster = Idents(scSeurat), 
