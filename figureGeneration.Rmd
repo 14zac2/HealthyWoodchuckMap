@@ -289,6 +289,19 @@ for(num in 2:length(geneCodes)) {
 }
 ```
 
+Look at zonation gene signatures:
+
+```{r}
+cv_genes <- c("FETUB","HMGCS1","CYP2E1","GLUD1;GLUD2","CYP1A2",
+              "RGN","INMT","COMT","FDPS","SPR-1")
+cv_genes
+pp_genes <- c("Saa2;Saa1-1","HAMP","APOA1","APOC2","CRYL1",
+              "AMY1A;AMY1C;AMY1B;AMY2A;AMY2B","MT-ATP6","UROC1",
+              "APOA2","MT-CO3")
+pp_genes
+```
+
+
 ## Correlation plots
 
 Generate heatmaps comparing woodchuck clusters with various datasets

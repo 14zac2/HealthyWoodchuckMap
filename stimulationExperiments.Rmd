@@ -151,7 +151,8 @@ It's pretty hard to see which cytokines are expressed in which samples, so I'm g
 
 ```{r}
 DimPlot(scSeurat, split.by = "tissue_type", label = TRUE) & NoLegend()
-pdf(file = './figures/stimulation/downsampled_UMAP_split.pdf')
+pdf(file = './figures/stimulation/downsampled_UMAP_split.pdf',
+    height = 4, width = 8)
 DimPlot(scSeurat, split.by = "tissue_type", label = TRUE) & NoLegend()
 dev.off()
 ```
@@ -162,7 +163,8 @@ Now let's take a look at the features on this split plot.
 genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF", "CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4")
 for (gene in genes) {
   print(FeaturePlot(scSeurat, feature = gene, split.by = "tissue_type"))
-  pdf(paste("figures/stimulation/downsampled_UMAP_split_", gene, ".pdf", sep = ""))
+  pdf(paste("figures/stimulation/downsampled_UMAP_split_", gene, ".pdf", sep = ""),
+      height = 4, width = 8)
   print(FeaturePlot(scSeurat, feature = gene, split.by = "tissue_type"))
   dev.off()
 }
