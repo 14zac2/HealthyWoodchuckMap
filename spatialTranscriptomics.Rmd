@@ -12,6 +12,7 @@ library(Seurat)
 library(ggplot2)
 library(patchwork)
 library(dplyr)
+library(UCell)
 #library(ggpubr)
 ```
 
@@ -51,7 +52,10 @@ for (gene in genes) {
 Calculate markers
 
 ```{r}
-all.markers <- FindAllMarkers(sobj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25,
+all.markers <- FindAllMarkers(sobj, 
+                              only.pos = TRUE, 
+                              min.pct = 0.25, 
+                              logfc.threshold = 0.25,
                               recorrect_umi = FALSE)
 top.markers <- all.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
 top.markers
@@ -61,5 +65,90 @@ write.table(all.markers,
             quote = FALSE,
             row.names = FALSE)
 ```
+
+Create zonation scores using top 30 genes from periportal and pericentral clusters (like Tallulah's paper)
+
+```{r}
+# Compare clusters 0 and 1
+markers <- FindMarkers(sobj,
+                       ident.1 = '0',
+                       ident.2 = '1',
+                       only.pos = FALSE,
+                       min.pct = 0.25,
+                       logfc.threshold = 0.25,
+                       recorrect_umi = FALSE)
+# Remove mikado genes
+markers <- markers[grep("mikado", rownames(markers), invert = TRUE),]
+# Get top 30 periportal genes
+pp_genes <- rownames(markers[markers$avg_log2FC > 0,])[1:10]
+pp_genes
+# Get top 30 pericentral genes
+cv_genes <- rownames(markers[markers$avg_log2FC < 0,])[1:10]
+cv_genes
+```
+
+Format for UCell
+
+```{r}
+mySigs <- list()
+mySigs$Periportal <- pp_genes
+mySigs$Pericentral <- cv_genes
+mySigs
+```
+
+
+Add these as gene signatures
+
+```{r}
+sobj <- AddModuleScore_UCell(sobj, features = mySigs, assay = "SCT")
+signature.names <- paste0(names(mySigs), "_UCell")
+VlnPlot(sobj, features = signature.names, group.by = "SCT_snn_res.0.2")
+SpatialFeaturePlot(sobj,
+                   features = signature.names,
+                   images = 'slice1')
+SpatialFeaturePlot(sobj,
+                   features = signature.names,
+                   images = 'slice1.1')
+```
+
+Create figures of spatial plots with signatures
+
+```{r}
+plot1 <- SpatialFeaturePlot(sobj,
+                            features = "Periportal_UCell",
+                            images = 'slice1')
+plot2 <- SpatialFeaturePlot(sobj,
+                            features = "Periportal_UCell",
+                            images = 'slice1.1')
+pdf("./figures/spatial/periportalSig_spatial_UCell.pdf")
+plot1 + plot2
+dev.off()
+```
+
+```{r}
+plot1 <- SpatialFeaturePlot(sobj,
+                            features = "Pericentral_UCell",
+                            images = 'slice1')
+plot2 <- SpatialFeaturePlot(sobj,
+                            features = "Pericentral_UCell",
+                            images = 'slice1.1')
+pdf("./figures/spatial/pericentralSig_spatial_UCell.pdf")
+plot1 + plot2
+dev.off()
+```
+
+Create heatmap with signature genes
+
+```{r}
+plot <- DoHeatmap(sobj,
+                  features = c(pp_genes, cv_genes),
+                  angle = 0,
+                  size = 3)
+plot
+pdf("./figures/spatial/zoneSigs_byClust_heatmap.pdf")
+plot
+dev.off()
+```
+
 
 
