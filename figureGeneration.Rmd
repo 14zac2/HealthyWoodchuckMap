@@ -289,6 +289,35 @@ for(num in 2:length(geneCodes)) {
 }
 ```
 
+Plot marker genes for specific cell populations
+
+Endothelial cells:
+
+```{r}
+geneCodes <- c("sct_STAB2","sct_ITGA1","sct_CD55","sct_LYVE1",
+               "sct_CD34","sct_VWF","sct_IFITM3;IFITM2;IFITM1","sct_RSPO3",
+               "sct_MECOM","sct_Mecom","sct_CALCRL","sct_LOC114089654",
+               "sct_RAMP2","sct_BST2","sct_CLEC4G","sct_CTSV;CTSL",
+               "sct_STAB1","sct_PLAC9","sct_PECAM1","sct_WNT2",
+               "sct_MYL6","sct_NR2F2")
+genes <- c("STAB2","ITGA1","CD55","LYVE1",
+           "CD34","VWF","IFITM3","RSPO3",
+           "MECOM","Mecom","CALCRL","LOC114089654",
+           "RAMP2","BST2","CLEC4G","CTSV;CTSL",
+           "STAB1","PLAC9","PECAM1","WNT2",
+           "MYL6","NR2F2") 
+for(num in 1:length(geneCodes)) {
+  plot <- FeaturePlot(sobj,
+                      features = geneCodes[num]) +
+    ggtitle(bquote(~italic(.(genes[num]))))
+  print(plot)
+  pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
+  print(plot)
+  dev.off()
+}
+```
+
+
 Look at zonation gene signatures:
 
 ```{r}
