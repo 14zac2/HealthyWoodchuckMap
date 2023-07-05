@@ -176,7 +176,8 @@ dotplot <- DotPlot(subset(sobj, downsample = 500),
   labs(y = "Cell type", x = "Lineage signature")
   #theme(axis.text = element_text(size = 8))
 dotplot
-pdf(paste("./figures/", tissue, "/", tissue, "lineage_dotplot.pdf", sep = ""))
+pdf(paste("./figures/", tissue, "/", tissue, "_lineage_dotplot.pdf", sep = ""),
+    height = 8, width = 12)
 dotplot
 dev.off()
 ```
