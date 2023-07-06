@@ -341,6 +341,26 @@ for(num in 1:length(geneCodes)) {
 }
 ```
 
+Mesenchyme:
+
+```{r}
+geneCodes <- c("sct_HHIP","sct_COL1A2","sct_COL3A1","sct_IGFBP7",
+               "sct_IGFBP3","sct_DCN","sct_COL1A1","sct_SPARC",
+               "sct_RBP1", "sct_CALCRL")
+genes <- c("HHIP","COL1A2","COL3A1","IGFBP7",
+           "IGFBP3","DCN","COL1A1","SPARC",
+           "RBP1","CALCRL") 
+for(num in 1:length(geneCodes)) {
+  plot <- FeaturePlot(sobj,
+                      features = geneCodes[num]) +
+    ggtitle(bquote(~italic(.(genes[num]))))
+  print(plot)
+  pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
+  print(plot)
+  dev.off()
+}
+```
+
 Look at zonation gene signatures:
 
 ```{r}
