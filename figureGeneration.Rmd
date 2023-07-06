@@ -361,6 +361,22 @@ for(num in 1:length(geneCodes)) {
 }
 ```
 
+Cholangiocytes:
+
+```{r}
+geneCodes <- c("sct_KRT19","sct_CFTR","sct_EPCAM","sct_SLC4A4")
+genes <- c("KRT19","CFTR","EPCAM","SLC4A4") 
+for(num in 1:length(geneCodes)) {
+  plot <- FeaturePlot(sobj,
+                      features = geneCodes[num]) +
+    ggtitle(bquote(~italic(.(genes[num]))))
+  print(plot)
+  pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
+  print(plot)
+  dev.off()
+}
+```
+
 Look at zonation gene signatures:
 
 ```{r}
