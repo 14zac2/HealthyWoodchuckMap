@@ -1,0 +1,54 @@
+---
+title: "Comparing mitochondrial cutoffs"
+output: html_notebook
+---
+
+```{r}
+library(Seurat)
+library(ggplot2)
+library(dplyr)
+```
+
+Read in liver map
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+res <- "integrated_snn_res.1.4"
+Idents(sobj) <- res
+tissue <- "liver"
+```
+
+Create a vector containing mitochondrial content
+
+```{r}
+mito <- sobj$percent.mt
+head(mito)
+```
+
+Change numbers to labels depending on which cells pass specific mitochondrial thresholds
+
+```{r}
+for (threshold in seq(10, 50, by = 10)) {
+  mito[mito < threshold] <- paste("mito", threshold, sep = "_")
+}
+table(mito)
+```
+
+Add to Seurat object as metadata
+
+```{r}
+sobj$mito_thresholds <- mito
+```
+
+Visualise as DimPlot
+
+```{r}
+plot <- DimPlot(sobj,group.by = "mito_thresholds") +
+  labs(title = "Mitochondrial Thresholds") +
+  scale_color_discrete(labels = c('10%', '20%', '30%', '40%', '50%'))
+plot
+pdf("./figures/liver/liver_mito_thresholds.pdf")
+plot
+dev.off()
+```
+
