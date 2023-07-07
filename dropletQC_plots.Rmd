@@ -1,0 +1,108 @@
+---
+title: "DropletQC Plots"
+output: html_notebook
+---
+
+Visualising the impact of DropletQC on filtering.
+
+```{r}
+library(Seurat)
+library(ggplot2)
+library(dplyr)
+```
+
+Read in object that has not been filtered by DropletQC.
+
+```{r}
+readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/allMerged_noDropletQC.RDS")
+```
+
+Visualise DropletQC result.
+
+```{r}
+plot <- DimPlot(sobj, reduction = "umap", raster = FALSE, group.by = "dropletQC_result") +
+  labs(title = "Droplet Status")
+plot
+pdf("./figures/liver/liver_dropletStatus_merged_unfiltered.pdf",
+    height = 5, width = 7)
+plot
+dev.off()
+```
+
+Visualise nuclear fraction
+
+```{r}
+plot <- FeaturePlot(sobj, features = "nuclear_fraction", raster = FALSE) +
+  labs(title = "Nuclear Fraction")
+plot
+pdf("./figures/liver/liver_nuclearFraction_merged_unfiltered.pdf",
+    height = 5, width = 7)
+plot
+dev.off()
+```
+
+Look at overall counts
+
+```{r}
+FeaturePlot(sobj, features = "nCount_RNA", raster = FALSE)
+```
+
+Bind log of RNA counts and nuclear fraction
+
+```{r}
+df <- data.frame("log_counts" = log10(sobj$nCount_RNA), 
+                 "nuclear_fraction" = sobj$nuclear_fraction,
+                 "droplet_status" = sobj$dropletQC_result)
+head(df)
+```
+
+Plot on scatterplot
+
+```{r}
+plot <- ggplot(df, aes(x = nuclear_fraction, y = log_counts, color = droplet_status)) +
+  geom_point() +
+  xlab("Nuclear Fraction") +
+  ylab("Log10 RNA Counts") +
+  scale_color_discrete(name = "Droplet Status")
+plot
+pdf("./figures/liver/liver_droplet_logCounts_scatter.pdf",
+    height = 5, width = 7)
+plot
+dev.off()
+```
+
+
+Visualise original identities
+
+```{r}
+plot <- DimPlot(sobj, group.by = "orig.ident", raster = FALSE) +
+  labs(title = "Original Identities")
+plot
+pdf("./figures/liver/liver_origIdent_merged_unfiltered.pdf",
+    height = 5, width = 7)
+plot
+dev.off()
+```
+
+Look at key contamination markers
+
+```{r}
+plot1 <- FeaturePlot(sobj, features = "APOC1", raster = FALSE) +
+  ggtitle(expression(italic("APOC1")))
+plot1
+plot2 <- FeaturePlot(sobj, features = "MARCO", raster = FALSE) +
+  ggtitle(expression(italic("MARCO")))
+plot2
+pdf("./figures/liver/liver_APOC1_merged_unfiltered.pdf",
+    height = 5, width = 7)
+plot1
+dev.off()
+pdf("./figures/liver/liver_MARCO_merged_unfiltered.pdf",
+    height = 5, width = 7)
+plot2
+dev.off()
+```
+
+
+
+

@@ -24,7 +24,7 @@ samples$prefix <- gsub("BIOPSY|TLH","PBMC", samples$prefix)
 
 objects <- c()
 
-# In a loop, load all dropletQC filtered objects
+# In a loop, load all objects
 for (row in 1:nrow(samples)) {
   load(paste("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/",
              dropletqc, "/", samples$woodchuck[row], "/", samples$woodchuck[row], "_", samples$sample_type[row], 
@@ -62,7 +62,8 @@ for (res in seq(from = 0.2, to = 2.0, by = 0.2)) {
 Idents(merged_sobj) <- "SCT_snn_res.0.2"
 
 saveRDS(merged_sobj,
-        file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/LSampsMerged_dropletQCFiltered.RDS")
+        file = paste("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/", 
+                     dropletqc, "/allMerged_noDropletQC.RDS", sep = ""))
 
 DimPlot(merged_sobj, label = TRUE)
 DimPlot(merged_sobj, label = TRUE, group.by = "scina_labels")
