@@ -43,6 +43,18 @@ DimPlot(scSeurat, group.by = "tissue_type") +
 dev.off()
 ```
 
+Create UMAP of general cell-type labels
+
+```{r}
+plot <- DimPlot(scSeurat, group.by = "general_cell_labels", label = TRUE, repel = TRUE) +
+  labs(title = NULL) & NoLegend()
+plot
+pdf("./figures/stimulation/downsampled_general_cell_type_UMAP.pdf")
+plot
+dev.off()
+```
+
+
 Look at tissue-type per cluster on a proportional level:
 
 ```{r}

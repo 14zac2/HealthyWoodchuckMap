@@ -277,3 +277,95 @@ save(sCVdata_list, scSeurat,
      file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
 ```
 
+## Stimulated data
+
+Read in stimulated data
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
+# Set identity
+Idents(scSeurat) <- "integrated_snn_res.0.4"
+```
+
+View UMAP
+
+```{r}
+DimPlot(scSeurat, label = TRUE)
+```
+
+Grab cluster IDs and replace with cell-type names
+- Endothelial cells: 0, 3, 10
+- Mesenchymal cells: 8, 9
+- Hepatocytes: 4, 5, 12
+- T cells: 2, 6
+- Lymphocytes: 1
+- Plasma cells: 11
+Clusters 0, 4, 8, 10 have odd gene expression
+
+Visualise general cell-type markers
+
+```{r}
+# Hepatocytes
+FeaturePlot(scSeurat, features = c("ALB-1"))
+FeaturePlot(scSeurat, features = c("CYP2E1","PCK1"))
+# Endothelial
+FeaturePlot(scSeurat, features = c("STAB2","CLEC4G"))
+FeaturePlot(scSeurat, features = c("RSPO3","MECOM"))
+# Lymphocytes
+FeaturePlot(scSeurat, features = c("CD3E"))
+FeaturePlot(scSeurat, features = c("XCL1;XCL2","LEF1"))
+# B cells
+FeaturePlot(scSeurat, features = c("CD79B", "MS4A1"))
+# Plasma cells
+FeaturePlot(scSeurat, features = c("JCHAIN"))
+# Myeloid cells
+FeaturePlot(scSeurat, features = c("LYZ-1","S100A8"))
+FeaturePlot(scSeurat, features = c("CD5L","C1QB"))
+FeaturePlot(scSeurat, features = c("CST3","FLT3"))
+# Cholangiocytes
+FeaturePlot(scSeurat, features = c("KRT19","SLC4A4"))
+# Mesenchymal
+FeaturePlot(scSeurat, features = c("HHIP"))
+```
+
+```{r}
+clusters <- as.character(Idents(scSeurat))
+clusters <- gsub('\\b0\\b|\\b3\\b|\\b10\\b', "Endothelial",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b1\\b', "Myeloid",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b2\\b|\\b6\\b', "Lymphocytes",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b11\\b', "Antibody-secreting B cells",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b4\\b|\\b5\\b|\\b12\\b', "Hepatocytes",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b8\\b|\\b9\\b', "Mesenchymal",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b7\\b|\\b13\\b', "Cholangiocytes",
+                 clusters,
+                 perl = TRUE)
+levels(as.factor(clusters))
+```
+
+Add as metadata and visualise on UMAP
+
+```{r}
+scSeurat@meta.data$general_cell_labels <- clusters
+DimPlot(scSeurat, group.by = "general_cell_labels", label = TRUE)
+```
+
+Save object with labels added
+
+```{r}
+save(sCVdata_list, scSeurat,
+     file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
+```
+
+
