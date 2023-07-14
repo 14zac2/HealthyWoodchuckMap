@@ -107,7 +107,7 @@ for (clust in levels(as.factor(Idents(scSeurat)))) {
                            clust ,"_stim_vs_unstim.tsv", sep = ""),
               sep = "\t",
               quote = FALSE,
-              row.names = FALSE)
+              row.names = TRUE)
 }
 ```
 
@@ -223,6 +223,12 @@ FeaturePlot(scSeurat, feature = "TLR7", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "HLA-DRA", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "IL12A", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "TLR2", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "NFKB1", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "ACTB", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "PTPRC", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "CD3E", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "TBP", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "SDHA", split.by = "tissue_type")
 ```
 
 
@@ -282,6 +288,31 @@ plot <- ggplot(vln_df, aes(x = Cluster, y = gene)) +
   theme_bw()
 print(plot)
 ```
+
+Make heatmap with select genes
+
+```{r}
+genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF","CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4")
+DoHeatmap(scSeurat, features = genes, group.by = "integrated_snn_res.0.4",
+          size = 3, 
+          angle = 90, assay = "RNA", slot = "data") +
+  NoLegend() +
+  theme(text = element_text(size = 7))
+DotPlot(scSeurat,
+        assay = "RNA",
+        features = genes,
+        group.by = "integrated_snn_res.0.4",
+        split.by =  "tissue_type")
+DotPlot(scSeurat,
+        assay = "RNA",
+        features = genes,
+        group.by = "tissue_type")
+DotPlot(scSeurat,
+        assay = "RNA",
+        features = genes,
+        group.by = "integrated_snn_res.0.4")
+```
+
 
 Perform DE test on T-cells from PMAIO vs unstim T-cells. I see *TNF, IL2RA*, but I also see hepatocyte genes like *ALB-1, STAT3*
 
