@@ -368,4 +368,42 @@ save(sCVdata_list, scSeurat,
      file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
 ```
 
+Now add new labels but keep cluster numbers
+
+```{r}
+clusters <- as.character(Idents(scSeurat))
+clusters <- gsub('\\b0\\b', "Endothelial (0)", clusters, perl = TRUE)
+clusters <- gsub('\\b3\\b', "Endothelial (3)", clusters, perl = TRUE)
+clusters <- gsub('\\b11\\b', "Antibody-secreting B cells (11)",
+                 clusters,
+                 perl = TRUE)
+clusters <- gsub('\\b12\\b', "Hepatocytes (12)", clusters, perl = TRUE)
+clusters <- gsub('\\b13\\b', "Cholangiocytes (13)", clusters, perl = TRUE)
+clusters <- gsub('\\b10\\b', "Endothelial (10)", clusters, perl = TRUE)
+clusters <- gsub('\\b1\\b', "Myeloid (1)", clusters, perl = TRUE)
+clusters <- gsub('\\b2\\b', "Lymphocytes (2)", clusters, perl = TRUE)
+clusters <- gsub('\\b6\\b', "Lymphocytes (6)", clusters, perl = TRUE)
+clusters <- gsub('\\b4\\b', "Hepatocytes (4)", clusters, perl = TRUE)
+clusters <- gsub('\\b5\\b', "Hepatocytes (5)", clusters, perl = TRUE)
+clusters <- gsub('\\b8\\b', "Mesenchymal (8)", clusters, perl = TRUE)
+clusters <- gsub('\\b9\\b', "Mesenchymal (9)", clusters, perl = TRUE)
+clusters <- gsub('\\b7\\b', "Cholangiocytes (7)", clusters, perl = TRUE)
+levels(as.factor(clusters))
+```
+
+Add as metadata and visualise on UMAP
+
+```{r}
+scSeurat@meta.data$general_cell_labels_clusts <- clusters
+DimPlot(scSeurat, group.by = "general_cell_labels_clusts", label = TRUE)
+```
+
+Save object with labels added
+
+```{r}
+save(sCVdata_list, scSeurat,
+     file = "~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
+```
+
+
 
