@@ -59,17 +59,20 @@ dev.off()
 Look at tissue-type per cluster on a proportional level:
 
 ```{r}
-pt <- table(Idents(scSeurat), scSeurat$tissue_type)
+pt <- table(scSeurat$general_cell_labels_clusts, scSeurat$tissue_type)
 pt <- as.data.frame(pt)
 plot <- ggplot(pt, aes(x = Var1, y = Freq, fill = Var2)) +
   theme_bw(base_size = 15) +
   geom_col(position = "fill", width = 0.5) +
-  xlab("Sample") +
+  xlab("Cluster") +
   ylab("Proportion") +
-  theme(legend.title = element_blank())
-plot
-pdf(file = './figures/stimulation/downsampled_tissue_type_barplot.pdf')
-plot
+  theme(legend.title = element_blank(),
+        legend.position = "top")
+#print(plot, vp = viewport(angle = 90))
+plot + coord_flip()
+pdf(file = './figures/stimulation/downsampled_tissue_type_barplot.pdf',
+    height = 5, width = 7)
+plot + coord_flip()
 dev.off()
 ```
 
