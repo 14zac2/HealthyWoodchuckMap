@@ -15,6 +15,7 @@ library(dplyr)
 library(ggplot2)
 library(scClustViz)
 library(SeuratWrappers)
+library(scCustomize)
 ```
 
 Load integrated object. This object has been integrated with CCA, because there was lots of batch effect between the 0hr tissue and the other two experiments (which merged quite well).
@@ -37,7 +38,8 @@ DimPlot(scSeurat, group.by = "scina_labels", label = TRUE) & NoLegend()
 pdf(file = './figures/stimulation/downsampled_UMAP.pdf')
 DimPlot(scSeurat, label = TRUE)
 dev.off()
-pdf(file = './figures/stimulation/downsampled_tissue_type_UMAP.pdf')
+pdf(file = './figures/stimulation/downsampled_tissue_type_UMAP.pdf',
+    height = 5, width = 7)
 DimPlot(scSeurat, group.by = "tissue_type") +
   ggtitle(NULL)
 dev.off()
@@ -176,12 +178,23 @@ dev.off()
 Now let's take a look at the features on this split plot.
 
 ```{r}
-genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF", "CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4")
+genes <- c("IL2","IL4","IL6","IL7","IL10","IL12A","TGFB1","TGFB2","TGFB3","TNF","IL18","IL2RA","CCL5","IFNG","LIF", "CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4","NFKB1","ACTB","PTPRC","CD3E","TBP","SDHA")
 for (gene in genes) {
-  print(FeaturePlot(scSeurat, feature = gene, split.by = "tissue_type"))
+  plots <- FeaturePlot_scCustom(scSeurat, feature = gene, split.by = "tissue_type",
+                     colors_use = viridis_light_high)
+  plot1 <- plots[[2]] + NoLegend() + labs(title = NULL)
+  plot2 <- plots[[1]] + theme(axis.line.y = element_blank(),
+                   axis.ticks.y = element_blank(),
+                   axis.text.y = element_blank(),
+                   axis.title.y = element_blank()) +
+    labs(title = NULL)
+  if (gene == "CCL3L1;CCL3L3;CCL3;CCL18" | gene == "CCL4L2;CCL4L1;CCL4") {
+    plot2 <- plot2 + theme(legend.title = element_blank())
+  }
+  print(plot1 + plot2)
   pdf(paste("figures/stimulation/downsampled_UMAP_split_", gene, ".pdf", sep = ""),
       height = 4, width = 8)
-  print(FeaturePlot(scSeurat, feature = gene, split.by = "tissue_type"))
+  print(plot1 + plot2)
   dev.off()
 }
 ```
