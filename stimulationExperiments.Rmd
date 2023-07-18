@@ -16,6 +16,8 @@ library(ggplot2)
 library(scClustViz)
 library(SeuratWrappers)
 library(scCustomize)
+library(reshape2)
+library(viridis)
 ```
 
 Load integrated object. This object has been integrated with CCA, because there was lots of batch effect between the 0hr tissue and the other two experiments (which merged quite well).
@@ -192,12 +194,66 @@ for (gene in genes) {
     plot2 <- plot2 + theme(legend.title = element_blank())
   }
   print(plot1 + plot2)
-  pdf(paste("figures/stimulation/downsampled_UMAP_split_", gene, ".pdf", sep = ""),
-      height = 4, width = 8)
-  print(plot1 + plot2)
-  dev.off()
+  #pdf(paste("figures/stimulation/downsampled_UMAP_split_", gene, ".pdf", sep = ""),
+  #    height = 4, width = 8)
+  #print(plot1 + plot2)
+  #dev.off()
 }
 ```
+
+# Stim vs unstim heatmap
+
+Look at the same features on a heatmap:
+
+```{r}
+# Make ordered list of genes to visualise
+genes <- c("ACTB","PTPRC","CD3E","TBP","SDHA","NFKB1","CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4","CCL5",
+           "TNF","IL2RA","IL2","IL4","IL6","IL7","IL10")
+# Loop through clusters
+for (clust in c("1","2", "5")) {
+  # Isolate RNA expression and tissue type
+  dat <- t(as.data.frame(scSeurat@assays$SCT@data[genes,
+                                                  scSeurat$integrated_snn_res.0.4 == clust]))
+  tissue_type <- as.data.frame(scSeurat$tissue_type[scSeurat$integrated_snn_res.0.4 == clust])
+  colnames(tissue_type) <- "tissue_type"
+  dat <- cbind(dat, tissue_type)
+  # Replace specific gene names
+  colnames(dat) <- gsub("CCL3L1;CCL3L3;CCL3;CCL18", "CCL3", colnames(dat))
+  colnames(dat) <- gsub("CCL4L2;CCL4L1;CCL4", "CCL4", colnames(dat))
+  # Find average values across tissue types
+  sumDat <- dat %>% group_by(tissue_type) %>% summarise_each(funs = mean)
+  sumDat <- melt(sumDat, value.name = "expression")
+  # Create heatmap with ggplot
+  plot <- ggplot(sumDat, aes(x = variable, y = tissue_type, fill = expression)) + 
+    geom_tile() +
+    scale_fill_viridis(name = "Avg Expression") +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.title.x = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank())
+  print(plot)
+  if (clust == "1") {
+    cells <- "myeloid"
+  } else if (clust == "2") {
+    cells <- "t_cell"
+  } else if (clust == "5") {
+    cells <- "hepatocyte"
+  }
+  pdf(paste("./figures/stimulation/downsampled", cells, "key_marker_heatmap.pdf", sep = "_"),
+    height = 2, width = 14)
+  print(plot)
+  dev.off() 
+}
+```
+
+```{r}
+DotPlot(scSeurat,
+        features = genes,
+        group.by = "general_cell_labels_clusts",
+        split.by = "tissue_type")
+        #idents = "CD3+ NK/T cells (2)")
+```
+
+
 
 More plots
 
