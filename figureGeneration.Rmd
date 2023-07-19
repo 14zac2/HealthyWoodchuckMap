@@ -73,8 +73,8 @@ plot <- DimPlot(sobj, group.by = "general_cell_labels",
   ggtitle(NULL)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_UMAP_general_cell_labels.pdf", sep = ""),
-    height = 7,
-    width = 9)
+    height = 8,
+    width = 12)
 plot
 dev.off()
 ```
