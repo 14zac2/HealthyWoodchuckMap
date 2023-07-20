@@ -100,7 +100,8 @@ plot <- DimPlot(sobj, group.by = "orig.ident",
   ggtitle(NULL)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_UMAP_orig_idents.pdf", 
-          sep = ""))
+          sep = ""),
+    height = 5, width = 7)
 plot
 dev.off()
 ```
@@ -296,12 +297,12 @@ Plot marker genes for specific cell populations
 Endothelial cells:
 
 ```{r}
-geneCodes <- c("sct_STAB2","sct_ITGA1","sct_CD55","sct_LYVE1",
-               "sct_CD34","sct_VWF","sct_IFITM3;IFITM2;IFITM1","sct_RSPO3",
-               "sct_MECOM","sct_Mecom","sct_CALCRL","sct_LOC114089654",
-               "sct_RAMP2","sct_BST2","sct_CLEC4G","sct_CTSV;CTSL",
-               "sct_STAB1","sct_PLAC9","sct_PECAM1","sct_WNT2",
-               "sct_MYL6","sct_NR2F2")
+geneCodes <- c("STAB2","ITGA1","CD55","LYVE1",
+               "CD34","VWF","IFITM3;IFITM2;IFITM1","RSPO3",
+               "MECOM","Mecom","CALCRL","LOC114089654",
+               "RAMP2","BST2","CLEC4G","CTSV;CTSL",
+               "STAB1","PLAC9","PECAM1","WNT2",
+               "MYL6","NR2F2")
 genes <- c("STAB2","ITGA1","CD55","LYVE1",
            "CD34","VWF","IFITM3","RSPO3",
            "MECOM","Mecom","CALCRL","LOC114089654",
@@ -309,8 +310,9 @@ genes <- c("STAB2","ITGA1","CD55","LYVE1",
            "STAB1","PLAC9","PECAM1","WNT2",
            "MYL6","NR2F2") 
 for(num in 1:length(geneCodes)) {
-  plot <- FeaturePlot(sobj,
-                      features = geneCodes[num]) +
+  plot <- FeaturePlot_scCustom(sobj,
+                               features = geneCodes[num],
+                               colors_use = viridis_light_high) +
     ggtitle(bquote(~italic(.(genes[num]))))
   print(plot)
   pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
@@ -322,17 +324,18 @@ for(num in 1:length(geneCodes)) {
 Lymphocytes:
 
 ```{r}
-geneCodes <- c("sct_CD3D","sct_CD3E","sct_CD8A","sct_NKG7",
-               "sct_KLRD1","sct_KLRB1","sct_GZMA","sct_LEF1",
-               "sct_IL7R-1","sct_EOMES","sct_TIGIT","sct_XCL1;XCL2",
-               "sct_TOX","sct_CTLA4","sct_CD4","sct_GZMK")
+geneCodes <- c("CD3D","CD3E","CD8A","NKG7",
+               "KLRD1","KLRB1","GZMA","LEF1",
+               "IL7R-1","EOMES","TIGIT","XCL1;XCL2",
+               "TOX","CTLA4","CD4","GZMK")
 genes <- c("CD3D","CD3E","CD8A","NKG7",
            "KLRD1","KLRB1","GZMA","LEF1",
            "IL7R","EOMES","TIGIT","XCL1;XCL2",
            "TOX","CTLA4","CD4","GZMK") 
 for(num in 1:length(geneCodes)) {
-  plot <- FeaturePlot(sobj,
-                      features = geneCodes[num]) +
+  plot <- FeaturePlot_scCustom(sobj,
+                      features = geneCodes[num],
+                      colors_use = viridis_light_high) +
     ggtitle(bquote(~italic(.(genes[num]))))
   print(plot)
   pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
@@ -344,15 +347,16 @@ for(num in 1:length(geneCodes)) {
 Mesenchyme:
 
 ```{r}
-geneCodes <- c("sct_HHIP","sct_COL1A2","sct_COL3A1","sct_IGFBP7",
-               "sct_IGFBP3","sct_DCN","sct_COL1A1","sct_SPARC",
-               "sct_RBP1", "sct_CALCRL")
+geneCodes <- c("HHIP","COL1A2","COL3A1","IGFBP7",
+               "IGFBP3","DCN","COL1A1","SPARC",
+               "RBP1", "CALCRL")
 genes <- c("HHIP","COL1A2","COL3A1","IGFBP7",
            "IGFBP3","DCN","COL1A1","SPARC",
            "RBP1","CALCRL") 
 for(num in 1:length(geneCodes)) {
-  plot <- FeaturePlot(sobj,
-                      features = geneCodes[num]) +
+  plot <- FeaturePlot_scCustom(sobj,
+                      features = geneCodes[num],
+                      colors_use = viridis_light_high) +
     ggtitle(bquote(~italic(.(genes[num]))))
   print(plot)
   pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
@@ -364,11 +368,12 @@ for(num in 1:length(geneCodes)) {
 Cholangiocytes:
 
 ```{r}
-geneCodes <- c("sct_KRT19","sct_CFTR","sct_EPCAM","sct_SLC4A4")
+geneCodes <- c("KRT19","CFTR","EPCAM","SLC4A4")
 genes <- c("KRT19","CFTR","EPCAM","SLC4A4") 
 for(num in 1:length(geneCodes)) {
-  plot <- FeaturePlot(sobj,
-                      features = geneCodes[num]) +
+  plot <- FeaturePlot_scCustom(sobj,
+                      features = geneCodes[num],
+                      colors_use = viridis_light_high) +
     ggtitle(bquote(~italic(.(genes[num]))))
   print(plot)
   pdf(paste("./figures/", tissue, "/", tissue, "_", genes[num], "_UMAP.pdf", sep = ""))
@@ -389,6 +394,75 @@ pp_genes <- c("Saa2;Saa1-1","HAMP","APOA1","APOC2","CRYL1",
 pp_genes
 ```
 
+### Cell-type markers all in one plot
+
+Endothelial cells:
+
+```{r}
+geneCodes <- c("STAB2","ITGA1","LYVE1","IFITM3;IFITM2;IFITM1",
+               "CALCRL","RAMP2","BST2", "CLEC4G",
+               "CTSV;CTSL", "STAB1", "VWF", "CD34",
+               "MECOM","PLAC9","RSPO3","WNT2")
+plot <- FeaturePlot_scCustom(sobj,
+                     features = geneCodes,
+                     colors_use = viridis_light_high,
+                     num_columns = 4)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_endothelialMarkers_UMAP.pdf", sep = ""),
+    height = 24, width = 24)
+plot
+dev.off()
+```
+
+T lymphocytes
+
+```{r}
+geneCodes <- c("CD3D","CD3E","CD4","CD8A",
+               "CTLA4","IL7R-1","LEF1","EOMES",
+               "TIGIT","KLRB1","KLRD1","NKG7",
+               "XCL1;XCL2","TOX","GZMA","GZMK")
+plot <- FeaturePlot_scCustom(sobj,
+                     features = geneCodes,
+                     colors_use = viridis_light_high,
+                     num_columns = 4)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_lymphocyteMarkers_UMAP.pdf", sep = ""),
+    height = 24, width = 24)
+plot
+dev.off()
+```
+
+Mesenchyme:
+
+```{r}
+geneCodes <- c("DCN","COL1A2","COL3A1","HHIP",
+               "CALCRL","SPARC","RBP1","COL1A1",
+               "IGFBP3", "IGFBP7")
+plot <- FeaturePlot_scCustom(sobj,
+                     features = geneCodes,
+                     colors_use = viridis_light_high,
+                     num_columns = 4)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_mesenchymalMarkers_UMAP.pdf", sep = ""),
+    height = 18, width = 24)
+plot
+dev.off()
+```
+
+Cholangiocytes:
+
+```{r}
+geneCodes <- c("KRT19","SLC4A4","CFTR","EPCAM")
+plot <- FeaturePlot_scCustom(sobj,
+                     features = geneCodes,
+                     colors_use = viridis_light_high,
+                     num_columns = 4)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_cholangiocyteMarkers_UMAP.pdf", sep = ""),
+    height = 6, width = 24)
+plot
+dev.off()
+```
 
 ## Correlation plots
 
@@ -634,7 +708,7 @@ heatmap(pearVal)
 #Rowv = NA,
 #Colv = NA)
 pdf(paste("./figures/", tissue, "/", tissue, "_", speciesData, "_PearsonCor.pdf", sep = ""),
-    height = 13, width = 13)
+    height = 15, width = 13)
 heatmap(pearVal, margins = c(13,13))
 dev.off()
 # Do Spearman
@@ -647,7 +721,7 @@ heatmap(spearVal)
 #Rowv = NA,
 #Colv = NA)
 pdf(paste("./figures/", tissue, "/", tissue, "_", speciesData, "_SpearmanCor.pdf", sep = ""),
-    height = 13, width = 13)
+    height = 15, width = 13)
 heatmap(spearVal, margins = c(13,13))
 dev.off()
 ```

@@ -172,6 +172,7 @@ Plot dotplot
 dotplot <- DotPlot(subset(sobj, downsample = 500),
                    features = signature.names,
                    group.by = "general_cell_labels") + 
+  scale_colour_viridis(option="magma") +
   RotatedAxis() +
   labs(y = "Cell type", x = "Lineage signature")
   #theme(axis.text = element_text(size = 8))
