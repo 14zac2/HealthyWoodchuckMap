@@ -9,12 +9,14 @@ Visualising the impact of DropletQC on filtering.
 library(Seurat)
 library(ggplot2)
 library(dplyr)
+library(scCustomize)
+library(rcartocolor)
 ```
 
 Read in object that has not been filtered by DropletQC.
 
 ```{r}
-readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/allMerged_noDropletQC.RDS")
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/allMerged_noDropletQC.RDS")
 ```
 
 Visualise DropletQC result.
@@ -32,7 +34,8 @@ dev.off()
 Visualise nuclear fraction
 
 ```{r}
-plot <- FeaturePlot(sobj, features = "nuclear_fraction", raster = FALSE) +
+plot <- FeaturePlot_scCustom(sobj, features = "nuclear_fraction", raster = FALSE,
+                             colors_use = viridis_light_high) +
   labs(title = "Nuclear Fraction")
 plot
 pdf("./figures/liver/liver_nuclearFraction_merged_unfiltered.pdf",
@@ -75,7 +78,8 @@ dev.off()
 Visualise original identities
 
 ```{r}
-plot <- DimPlot(sobj, group.by = "orig.ident", raster = FALSE) +
+plot <- DimPlot(sobj, group.by = "orig.ident", raster = FALSE,
+                cols = carto_pal(length(levels(as.factor(sobj$orig.ident))), "Safe")) +
   labs(title = "Original Identities")
 plot
 pdf("./figures/liver/liver_origIdent_merged_unfiltered.pdf",
@@ -87,10 +91,12 @@ dev.off()
 Look at key contamination markers
 
 ```{r}
-plot1 <- FeaturePlot(sobj, features = "APOC1", raster = FALSE) +
+plot1 <- FeaturePlot_scCustom(sobj, features = "APOC1", raster = FALSE,
+                              colors_use = viridis_light_high) +
   ggtitle(expression(italic("APOC1")))
 plot1
-plot2 <- FeaturePlot(sobj, features = "MARCO", raster = FALSE) +
+plot2 <- FeaturePlot_scCustom(sobj, features = "MARCO", raster = FALSE,
+                              colors_use = viridis_light_high) +
   ggtitle(expression(italic("MARCO")))
 plot2
 pdf("./figures/liver/liver_APOC1_merged_unfiltered.pdf",

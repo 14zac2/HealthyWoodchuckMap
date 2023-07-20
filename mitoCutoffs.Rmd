@@ -7,6 +7,7 @@ output: html_notebook
 library(Seurat)
 library(ggplot2)
 library(dplyr)
+library(rcartocolor)
 ```
 
 Read in liver map
@@ -43,11 +44,13 @@ sobj$mito_thresholds <- mito
 Visualise as DimPlot
 
 ```{r}
-plot <- DimPlot(sobj,group.by = "mito_thresholds") +
-  labs(title = "Mitochondrial Thresholds") +
-  scale_color_discrete(labels = c('10%', '20%', '30%', '40%', '50%'))
+plot <- DimPlot(sobj,group.by = "mito_thresholds",
+                cols = carto_pal(length(levels(as.factor(sobj$mito_thresholds))), "Safe")) +
+  labs(title = "Mitochondrial Thresholds")
+  #scale_color_discrete(labels = c('10%', '20%', '30%', '40%', '50%'))
 plot
-pdf("./figures/liver/liver_mito_thresholds.pdf")
+pdf("./figures/liver/liver_mito_thresholds.pdf",
+    height = 5, width = 7)
 plot
 dev.off()
 ```
