@@ -208,7 +208,7 @@ Look at the same features on a heatmap:
 ```{r}
 # Make ordered list of genes to visualise
 genes <- c("ACTB","PTPRC","CD3E","TBP","SDHA","NFKB1","CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4","CCL5",
-           "TNF","IL2RA","IL2","IL4","IL6","IL7","IL10")
+           "TNF","IFNG","IL2RA","IL2","IL4","IL6","IL7","IL10")
 # Loop through clusters
 for (clust in c("1","2", "5")) {
   # Isolate RNA expression and tissue type
