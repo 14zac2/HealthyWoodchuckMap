@@ -66,7 +66,7 @@ write.table(all.markers,
             row.names = FALSE)
 ```
 
-Create zonation scores using top 30 genes from periportal and pericentral clusters (like Tallulah's paper)
+Create zonation scores using top 10 genes from periportal and pericentral clusters
 
 ```{r}
 # Compare clusters 0 and 1
@@ -150,5 +150,11 @@ plot
 dev.off()
 ```
 
+Save object if needed
+
+```{r}
+saveRDS(sobj,
+        file = "../spatial/merged_spatial_sobj.RDS")
+```
 
 
