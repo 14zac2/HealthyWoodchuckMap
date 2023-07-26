@@ -20,31 +20,6 @@ Read in woodchuck single-cell liver dataset:
 sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
 res <- "integrated_snn_res.1.4"
 Idents(sobj) <- res
-tissue <- "liver"
-```
-
-Read in woodchuck PBMCs:
-
-```{r}
-load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
-sobj <- scSeurat
-res <- "integrated_snn_res.0.6"
-Idents(sobj) <- res
-tissue <- "PBMC"
-```
-
-Calculate markers for general cell labels then reset resolution
-
-```{r}
-Idents(sobj) <- "general_cell_labels"
-sobj_markers <- RunPrestoAll(sobj, 
-                             only.pos = TRUE, 
-                             min.pct = 0.25, 
-                             logfc.threshold = 0.25)
-sobj_markers %>%
-    group_by(cluster) %>%
-    slice_max(n = 2, order_by = avg_log2FC)
-Idents(sobj) <- res
 ```
 
 Read in ortholog table
