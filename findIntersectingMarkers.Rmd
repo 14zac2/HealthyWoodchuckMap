@@ -1,0 +1,131 @@
+---
+title: "Marker gene intersections"
+output: html_notebook
+---
+
+Looking for intersecting marker genes between woodchuck and human datasets.
+
+Load libraries
+
+```{r}
+library(Seurat)
+library(presto)
+library(SeuratWrappers)
+library(dplyr)
+```
+
+Read in woodchuck single-cell liver dataset:
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+res <- "integrated_snn_res.1.4"
+Idents(sobj) <- res
+tissue <- "liver"
+```
+
+Read in woodchuck PBMCs:
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
+sobj <- scSeurat
+res <- "integrated_snn_res.0.6"
+Idents(sobj) <- res
+tissue <- "PBMC"
+```
+
+Calculate markers for general cell labels then reset resolution
+
+```{r}
+Idents(sobj) <- "general_cell_labels"
+sobj_markers <- RunPrestoAll(sobj, 
+                             only.pos = TRUE, 
+                             min.pct = 0.25, 
+                             logfc.threshold = 0.25)
+sobj_markers %>%
+    group_by(cluster) %>%
+    slice_max(n = 2, order_by = avg_log2FC)
+Idents(sobj) <- res
+```
+
+Read in ortholog table
+
+```{r}
+geneNameTable <- read.table("~/Dropbox/Zoe/scf_version/make_gtf/orthofinder_sc2/homologene/collectedOrthofinderPairings.tsv",
+                            sep = "\t",
+                            header = TRUE)
+```
+
+Load human data from MacParland et al.
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/correlationTests/HumanLiver.RData")
+# Run SCTransform
+HumanLiverSeurat <- UpdateSeuratObject(HumanLiverSeurat)
+HumanLiverSeurat <- SCTransform(HumanLiverSeurat)
+# Replace cluster numbers with names
+levels(Idents(HumanLiverSeurat)) <- c("Hep 1", "Alpha-beta T cells", "Hep 2",
+                                      "Inflammatory macs", "Hep 3", "Hep 4",
+                                      "Plasma cells", "NK-like cells", "Gamma-delta T cells",
+                                      "Non-inflammatory macs", "Periportal LSECs", 
+                                      "Central venous LSECs",
+                                      "Portal endothelial cells", "Hep 5", "Hep 6",
+                                      "Mature B cells", "Cholangiocytes", "Gamma-delta T cells 2",
+                                      "Erythroid cells", "Hepatic stellate cells")
+```
+
+Print out woodchuck cluster names
+
+```{r}
+levels(as.factor(sobj$general_cell_labels))
+```
+
+Choose woodchuck and human clusters to compare
+
+```{r}
+woodchuck_cluster <- c("CD3+ NK/T cells")
+human_cluster <- c("NK-like cells")
+```
+
+Find woodchuck markers
+
+```{r}
+woodchuck_genes <- RunPresto(sobj, 
+                             ident.1 = woodchuck_cluster,
+                             only.pos = TRUE, 
+                             recorrect_umi = FALSE,
+                             group.by = "general_cell_labels")
+paste("There are", nrow(woodchuck_genes), "marker genes.")
+woodchuck_genes <- woodchuck_genes[grep("mikado", row.names(woodchuck_genes), invert = TRUE),]
+```
+
+Find human markers
+
+```{r}
+human_genes <- RunPresto(HumanLiverSeurat,
+                         ident.1 = human_cluster,
+                         only.pos = TRUE, 
+                         recorrect_umi = FALSE)
+paste("There are", nrow(human_genes), "marker genes.")
+```
+
+Convert woodchuck genes to their human orthologs and find genes that intersect. Note that these are ordered by their value in woodchuck.
+
+```{r}
+# Grab woodchuck gene names
+uniqueHier <- row.names(woodchuck_genes)
+# Replace these gene names with the human name
+uniqueHier <- as.data.frame(uniqueHier)
+# Bind with geneNameTable
+newNames <- dplyr::left_join(uniqueHier, geneNameTable, by = "uniqueHier")
+# If mikado protein column is blank, replace with uniqueHier (non-coding genes)
+newNames$mikado_final_sc2_stringent_noMito_protein <- ifelse(is.na(newNames$mikado_final_sc2_stringent_noMito_protein), newNames$uniqueHier, newNames$mikado_final_sc2_stringent_noMito_protein)
+# If human has NA, replace with mikado name column
+newNames$humanOneToOne <- ifelse(is.na(newNames$humanOneToOne), newNames$mikado_final_sc2_stringent_noMito_protein, newNames$humanOneToOne)
+# Add gene names as human
+row.names(woodchuck_genes) <- newNames$humanOneToOne
+# Find those that intersect
+woodchuck_human_genes <- intersect(rownames(woodchuck_genes), rownames(human_genes))
+paste("There are", length(woodchuck_human_genes), "intersecting genes.")
+cat(woodchuck_human_genes, sep = ", ")
+```
+
