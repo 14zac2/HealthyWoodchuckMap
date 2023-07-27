@@ -669,6 +669,35 @@ head(allCellsMatrix)
 speciesData <- "aizarani"
 ```
 
+Correlation of woodchuck liver with human liver dataset from Andrews *et al.* (2022)
+
+```{r}
+# Load dataset
+humanNuc <- readRDS("~/Dropbox/Zoe/scf_version/analysis/correlationTests/single_nuc_20_human_map.rds")
+# Isolate single-nuc only
+humanNuc <- UpdateSeuratObject(humanNuc)
+humanNuc <- subset(humanNuc, subset = assay_type == "single_nuc")
+# Run SCTransform
+humanNuc <- SCTransform(humanNuc)
+# Change idents
+Idents(humanNuc) <- humanNuc@meta.data$sub_annotation
+# Get cluster averages
+humanNucClustAverages <- AverageExpression(humanNuc,
+                                           assays = "SCT",
+                                           slot = "scale.data")
+humanNucClustAverages$SCT <- na.omit(t(scale(t(as.matrix(humanNucClustAverages$SCT)))))
+# Grab gene names
+nucGenes <- row.names(humanNucClustAverages$SCT)
+# Now turn into large dataframe
+allCellsMatrix <- as.data.frame(humanNucClustAverages$SCT)
+# Order by row name
+allCellsMatrix <- allCellsMatrix[order(row.names(allCellsMatrix)),]
+# Sanity check
+head(allCellsMatrix)
+speciesData <- "andrews"
+```
+
+
 Correlation of woodchuck liver with woodchuck PBMCs. For this correlation, read in the woodchuck liver dataset at the beginning of this script and then read in the woodchuck PBMCs below
 
 ```{r}
