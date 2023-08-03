@@ -1,0 +1,117 @@
+---
+title: "Subclustering"
+output: html_notebook
+---
+
+This script loads the original dataset and subclusters.
+
+```{r}
+library(Seurat)
+library(dplyr)
+library(scClustViz)
+library(viridis)
+library(presto)
+library(cluster)
+library(viridisLite)
+library(shiny)
+```
+
+Read in liver map
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+res <- "integrated_snn_res.1.4"
+Idents(sobj) <- res
+tissue <- "liver"
+```
+
+Create dimplot to visualise dataset
+
+```{r}
+DimPlot(sobj, group.by = "general_cell_labels", label = TRUE)
+```
+
+Subset object specifying desired cell label
+
+```{r}
+sobj_subset <- subset(sobj, subset = general_cell_labels %in% c("Hepatocytes"))
+sobj_subset
+```
+
+Remove original object and clear memory
+
+```{r}
+sobj <- sobj_subset
+rm(sobj_subset)
+gc()
+```
+
+Reset default assay to integrated
+
+```{r}
+DefaultAssay(sobj) <- "integrated"
+```
+
+Rerun standard clustering workflow **without** SCTransform
+
+```{r}
+sobj <- RunPCA(sobj) %>%
+  FindNeighbors(dims = 1:30) %>%
+  RunUMAP(dims = 1:30) %>%
+  RunTSNE()
+```
+
+Run scClustViz
+
+```{r}
+scSeurat <- sobj
+DE_bw_clust <- TRUE
+FDRthresh <- 0.01
+seurat_resolution <- 0
+sCVdata_list <- list()
+
+while(DE_bw_clust) {
+  seurat_resolution <- seurat_resolution + 0.2
+  # ^ iteratively incrementing resolution parameter
+
+  scSeurat <- FindClusters(scSeurat,
+                           resolution=seurat_resolution,
+                           print.output=F)
+  message(" ")
+  message("------------------------------------------------------")
+  message(paste0("--------  res.",seurat_resolution," with ",
+                 length(levels(Idents(scSeurat)))," clusters --------"))
+  message("------------------------------------------------------")
+  curr_sCVdata <- CalcSCV(inD=scSeurat,
+                          cl=Idents(scSeurat),
+                          # ^ your most recent clustering results get stored in the Seurat "ident" slot
+                          assayType = "SCT",
+                          exponent=exp(1),
+                          pseudocount=1,
+                          DRthresh=0.1,
+                          DRforClust="pca",
+                          calcSil=T,
+                          calcDEvsRest=T,
+                          calcDEcombn=T)
+
+  DE_bw_NN <- sapply(DEneighb(curr_sCVdata,FDRthresh),nrow)
+  # ^ counts # of DE genes between neighbouring clusters at your selected FDR threshold
+
+  if (min(DE_bw_NN) < 1 | seurat_resolution > 2) { DE_bw_clust <- FALSE }
+  # ^ If no DE genes between nearest neighbours, don't loop again.
+
+  sCVdata_list[[paste0("res.",seurat_resolution)]] <- curr_sCVdata
+}
+
+DefaultAssay(scSeurat) <- "SCT"
+```
+
+Save scClustViz object
+
+```{r}
+save(sCVdata_list, scSeurat,
+     file = "./seurat_objects/dropletQC_filtered/subclustering/heps_integrated_cca_noBiopsyHeps_scClustViz.RData")
+```
+
+
+
