@@ -16,6 +16,7 @@ library(ggplot2)
 library(dplyr)
 library(rcartocolor)
 library(SeuratWrappers)
+library(scCustomize)
 ```
 
 Read in liver map
@@ -324,6 +325,10 @@ for(num in 1:length(geneCodes)) {
 Lymphocytes:
 
 ```{r}
+geneCodes <- c("CXCR3","IL7R-1",
+               "S100A4","GATA3","CD247","MAF",
+               "CCR4")
+genes <- geneCodes
 geneCodes <- c("CD3D","CD3E","CD8A","NKG7",
                "KLRD1","KLRB1","GZMA","LEF1",
                "IL7R-1","EOMES","TIGIT","XCL1;XCL2",
@@ -399,17 +404,22 @@ pp_genes
 Endothelial cells:
 
 ```{r}
+# One set of features
 geneCodes <- c("STAB2","ITGA1","LYVE1","IFITM3;IFITM2;IFITM1",
                "CALCRL","RAMP2","BST2", "CLEC4G",
                "CTSV;CTSL", "STAB1", "VWF", "CD34",
                "MECOM","PLAC9","RSPO3","WNT2")
+# Second set of features
+geneCodes <- c("CLEC4G","STAB1","STAB2","LYVE1",
+               "CD34","MECOM","VWF","RSPO3",
+               "WNT2","ACKR1")
 plot <- FeaturePlot_scCustom(sobj,
                      features = geneCodes,
                      colors_use = viridis_light_high,
                      num_columns = 4)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_endothelialMarkers_UMAP.pdf", sep = ""),
-    height = 24, width = 24)
+    height = 18, width = 24)
 plot
 dev.off()
 ```
@@ -421,13 +431,19 @@ geneCodes <- c("CD3D","CD3E","CD4","CD8A",
                "CTLA4","IL7R-1","LEF1","EOMES",
                "TIGIT","KLRB1","KLRD1","NKG7",
                "XCL1;XCL2","TOX","GZMA","GZMK")
+geneCodes <- c("CD3D","CD3E","GIMAP1","GIMAP4",
+               "GIMAP6","GIMAP7","CD4","CD28",
+               "FOXP1","CTLA4","CD38","XCL1;XCL2",
+               "IL2RA","NKG7","CD8A","CCL5",
+               "CD69","CD2","GZMK","BRCA2", 
+               "TOP2A", "STMN1")
 plot <- FeaturePlot_scCustom(sobj,
                      features = geneCodes,
                      colors_use = viridis_light_high,
                      num_columns = 4)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_lymphocyteMarkers_UMAP.pdf", sep = ""),
-    height = 24, width = 24)
+    height = ceiling(length(geneCodes)/4)*6, width = 24)
 plot
 dev.off()
 ```
@@ -438,13 +454,17 @@ Mesenchyme:
 geneCodes <- c("DCN","COL1A2","COL3A1","HHIP",
                "CALCRL","SPARC","RBP1","COL1A1",
                "IGFBP3", "IGFBP7")
+geneCodes <- c("COL1A2", "COL3A1", "IGFBP7", "IGFBP3", 
+               "DCN", "CALCRL", "COL1A1", "SPARC", 
+               "RBP1", "HHIP","RBP1","LRAT",
+               "PDE3B","HGF","CNN2","ACTA2")
 plot <- FeaturePlot_scCustom(sobj,
                      features = geneCodes,
                      colors_use = viridis_light_high,
                      num_columns = 4)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_mesenchymalMarkers_UMAP.pdf", sep = ""),
-    height = 18, width = 24)
+    height = ceiling(length(geneCodes)/4)*6, width = 24)
 plot
 dev.off()
 ```
@@ -453,16 +473,40 @@ Cholangiocytes:
 
 ```{r}
 geneCodes <- c("KRT19","SLC4A4","CFTR","EPCAM")
+geneCodes <- c("ANXA2", "CST3", "BIRC3", "TESC",
+               "KRT19", "SOX9", "EPCAM","SLC4A4",
+               "CFTR")
 plot <- FeaturePlot_scCustom(sobj,
                      features = geneCodes,
                      colors_use = viridis_light_high,
                      num_columns = 4)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_cholangiocyteMarkers_UMAP.pdf", sep = ""),
-    height = 6, width = 24)
+    height = ceiling(length(geneCodes)/4)*6, width = 24)
 plot
 dev.off()
 ```
+
+Myeloid cells
+
+```{r}
+geneCodes <- c("TYROBP","CD74","CTSS","VSIG4",
+               "MARCO", "CD5L","HMOX1","VCAM1",
+               "ITGAM","FCGR3A;FCGR3B","Fcgr3;Fcgr2b","CTSA",
+               "IL17RA-1","SIRPA;SIRPB1;SIRPG","BTLA", "CADM1",
+               "ID2","LY6E","FLT3", "CD14",
+               "NOTCH2","LYZ-1","S100A8")
+plot <- FeaturePlot_scCustom(sobj,
+                     features = geneCodes,
+                     colors_use = viridis_light_high,
+                     num_columns = 4)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_myeloidMarkers_UMAP.pdf", sep = ""),
+    height = ceiling(length(geneCodes)/4)*6, width = 24)
+plot
+dev.off()
+```
+
 
 ## Correlation plots
 
@@ -473,7 +517,8 @@ Generate heatmaps comparing woodchuck clusters with various datasets
 First, set up whatever woodchuck dataset I am working with by reading in the ortholog table, choosing whether the orthologs to use are human, mouse, or woodchuck, and calculating the average expression for each cluster. The output of this section is the scaled cluster gene-expression matrix
 
 ```{r}
-groups <- "general_cell_labels"
+groups <- res
+#groups <- "general_cell_labels"
 # Read in ortholog table
 geneNameTable <- read.table("~/Dropbox/Zoe/scf_version/make_gtf/orthofinder_sc2/homologene/collectedOrthofinderPairings.tsv",
                             sep = "\t",
