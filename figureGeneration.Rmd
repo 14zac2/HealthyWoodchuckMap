@@ -448,6 +448,27 @@ plot
 dev.off()
 ```
 
+T lymphocytes for PBMCs
+
+```{r}
+geneCodes <- c("CD3D","CD3E","XCL1;XCL2","NKG7",
+               "LEF1","IL7R-1","GATA3","MAF",
+               "CCR4","S100A4","CXCR3","IL2RA",
+               "CD160","CD247","BRCA2","STMN1")
+# CCR7 and TCF7 aren't showing up???
+plot <- FeaturePlot_scCustom(sobj,
+                     features = geneCodes,
+                     colors_use = viridis_light_high,
+                     num_columns = 4,
+                     slot = "data")
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_lymphocyteMarkers_UMAP.pdf", sep = ""),
+    height = ceiling(length(geneCodes)/4)*6, width = 24)
+plot
+dev.off()
+```
+
+
 Mesenchyme:
 
 ```{r}

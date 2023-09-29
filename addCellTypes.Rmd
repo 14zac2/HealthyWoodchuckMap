@@ -167,17 +167,16 @@ DimPlot(sobj, label = TRUE)
 
 Grab cluster IDs and replace with cell-type names
 - Monocytes: 0, 6, 8, 9, 21, 24
-- CD14-/CD16+ Non-classical monocytes: 0, 21, 24
+- CD14-/CD16+ Non-classical monocytes: 0, 14, 21, 24
 - CD14-/CD16- Monocytes: 6, 9
 - CD14+/CD16+ Monocytes: 8
 - Monocytes 4 (PLAC8+/dendritic?): 14 
 - Lymphocytes: 1, 2, 4, 5, 7, 10, 13, 15, 17
-- CD3+ Mature resting memory T cells: 1, 5, 10, 17
-- CD3+ NK/T cells (XCL1;XCL2+): 4, 7
-- CD3+ Naive regulatory T cells (LEF1+): 1, 10
-- CD3+ Proliferating T cells (dividing): 23
-- CD3+ TH2-like mature T cells (GATA3+): 2,13
-- CD3+ XXX: 15
+- CD3+/LEF1+/TCF7+ memory T cells: 1, 5, 10, 13, 17
+- CD3+/CD8A+/NKG7+ NK/T cells (XCL1;XCL2+): 4, 7
+- CD3+/MKI67+/TOP2A+ Proliferating T cells (dividing): 23
+- CD3+/GATA3+/MAF+ TH2-like T cells 1 (GATA3+): 2
+- CD3+/GATA3+/MAF+ TH2-like T cells 2: 15
 - B-cells: 3, 11
 - HSC: 16
 - Plasma B: 18
@@ -214,34 +213,33 @@ FeaturePlot(sobj, features = c("HBA2;HBA1"))
 
 ```{r}
 clusters <- as.character(Idents(sobj))
+clusters <- gsub('\\b1\\b|\\b5\\b|\\b10\\b|\\b13\\b|\\b17\\b',
+                 "CD3+/LEF1+/TCF7+ memory T cells",
+                 clusters,
+                 perl = TRUE)
 clusters <- gsub('\\b3\\b|\\b11\\b', "B cells",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b1\\b|\\b10\\b', "CD3+ Naive regulatory T cells",
+clusters <- gsub('\\b2\\b', "CD3+/GATA3+/MAF+ TH2-like T cells 1",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b2\\b|\\b5\\b|\\b13\\b|\\b17\\b', "Lymphocytes 1",
+clusters <- gsub('\\b4\\b|\\b7\\b', "CD3+/CD8A+/NKG7+ NK/T cells",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b4\\b|\\b7\\b', "CD3+ NK/T cells",
+clusters <- gsub('\\b0\\b|\\b14\\b|\\b21\\b|\\b24\\b', 
+                 "CD14-/CD16+ Non-classical monocytes",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b0\\b|\\b21\\b|\\b24\\b', "CD14-/CD16+ Non-classical monocytes",
+clusters <- gsub('\\b23\\b', "CD3+/MKI67+/TOP2A+ Proliferating T cells",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b23\\b', "CD3+ Proliferating T cells",
-                 clusters,
-                 perl = TRUE)
-clusters <- gsub('\\b15\\b', "Lymphocytes 5",
+clusters <- gsub('\\b15\\b', "CD3+/GATA3+/MAF+ TH2-like T cells 2",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b6\\b|\\b9\\b', "CD14-/CD16- Monocytes",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b8\\b', "CD14+/CD16+ Monocytes",
-                 clusters,
-                 perl = TRUE)
-clusters <- gsub('\\b14\\b', "Monocytes 4",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b18\\b', "Plasma B cells",
