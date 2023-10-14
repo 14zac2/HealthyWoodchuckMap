@@ -1,0 +1,274 @@
+---
+title: "Count cell types per woodchuck"
+output: html_notebook
+---
+
+```{r}
+library(Seurat)
+library(scClustViz)
+library(dplyr)
+```
+
+# Liver
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+res <- "integrated_snn_res.1.4"
+Idents(sobj) <- res
+tissue <- "liver"
+```
+
+Count number of plasma B cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Antibody-secreting B cells"], sep = ""))
+}
+```
+
+Count number of B cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["B cells"], sep = ""))
+}
+```
+
+Count number of T cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  cell_totals <- sum(cell_table[c("CD3+ Naive regulatory T cells",
+                                  "CD3+ NK/T cells",
+                                  "CD3+ Proliferating T cells",
+                                  "CD3+ Tissue-resident memory T cells")])
+  print(paste(woodchuck, ": ", cell_totals, sep = ""))
+}
+```
+
+Count number of monocytes/macrophages
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  cell_totals <- sum(cell_table[c("CD14-/CD16+ Non-classical monocytes",
+                                  "CD14+/CD16+ Monocytes",
+                                  "Macrophages")])
+  print(paste(woodchuck, ": ", cell_totals, sep = ""))
+}
+```
+
+Count number of dendritic cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["cDC1 conventional DC type 1"], sep = ""))
+}
+```
+
+Count number of cholangiocytes
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Cholangiocytes"], sep = ""))
+}
+```
+
+Count number of endothelial cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Endothelial"], sep = ""))
+}
+```
+
+Count number of hepatocytes
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Hepatocytes"], sep = ""))
+}
+```
+
+Count number of mesenchymal cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Mesenchymal"], sep = ""))
+}
+```
+
+# PBMCs
+
+Read in PBMCs
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
+sobj <- scSeurat
+res <- "integrated_snn_res.0.6"
+Idents(sobj) <- res
+tissue <- "PBMC"
+```
+
+Count number of plasma B cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Plasma B cells"], sep = ""))
+}
+```
+
+Count number of B cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["B cells"], sep = ""))
+}
+```
+
+Count number of T cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  cell_totals <- sum(cell_table[c("CD3+/CD8A+/NKG7+ NK/T cells",
+                                  "CD3+/GATA3+/MAF+ TH2-like T cells 1",
+                                  "CD3+/GATA3+/MAF+ TH2-like T cells 2",
+                                  "CD3+/LEF1+/TCF7+ memory T cells",
+                                  "CD3+/MKI67+/TOP2A+ Proliferating T cells")])
+  print(paste(woodchuck, ": ", cell_totals, sep = ""))
+}
+```
+
+Count number of monocytes/macrophages
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  cell_totals <- sum(cell_table[c("CD14-/CD16- Monocytes",
+                                  "CD14-/CD16+ Non-classical monocytes",
+                                  "CD14+/CD16+ Monocytes")])
+  print(paste(woodchuck, ": ", cell_totals, sep = ""))
+}
+```
+
+Count number of erythrocytes
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Erythrocytes"], sep = ""))
+}
+```
+
+Count number of hematopoietic stem cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Hematopoietic stem cells"], sep = ""))
+}
+```
+
+Count number of mast cells
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Mast cells"], sep = ""))
+}
+```
+
+Count number of megakaryocytes
+
+```{r}
+for (woodchuck in levels(as.factor(sobj$woodchuck))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$woodchuck == woodchuck])
+  print(paste(woodchuck, ": ", cell_table["Megakaryocytes"], sep = ""))
+}
+```
+
+# Stimulated data
+
+Read in stimulated data
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_pmaio_unstim_downsampled_cca_kanchor5_scClustViz.RData")
+sobj <- scSeurat
+# Set identity
+Idents(sobj) <- "integrated_snn_res.0.4"
+```
+
+Count number of plasma B cells
+
+```{r}
+for (treatment in levels(as.factor(sobj$orig.ident))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$orig.ident == treatment])
+  print(paste(treatment, ": ", cell_table["Antibody-secreting B cells"], sep = ""))
+}
+```
+
+Count number of T cells
+
+```{r}
+for (treatment in levels(as.factor(sobj$orig.ident))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$orig.ident == treatment])
+  print(paste(treatment, ": ", cell_table["Lymphocytes"], sep = ""))
+}
+```
+
+Count number of macrophages/monocytes
+
+```{r}
+for (treatment in levels(as.factor(sobj$orig.ident))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$orig.ident == treatment])
+  print(paste(treatment, ": ", cell_table["Myeloid"], sep = ""))
+}
+```
+
+Count number of cholangiocytes
+
+```{r}
+for (treatment in levels(as.factor(sobj$orig.ident))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$orig.ident == treatment])
+  print(paste(treatment, ": ", cell_table["Cholangiocytes"], sep = ""))
+}
+```
+
+Count number of endothelial cells
+
+```{r}
+for (treatment in levels(as.factor(sobj$orig.ident))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$orig.ident == treatment])
+  print(paste(treatment, ": ", cell_table["Endothelial"], sep = ""))
+}
+```
+
+Count number of hepatocytes
+
+```{r}
+for (treatment in levels(as.factor(sobj$orig.ident))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$orig.ident == treatment])
+  print(paste(treatment, ": ", cell_table["Hepatocytes"], sep = ""))
+}
+```
+
+Count number of mesenchymal cells
+
+```{r}
+for (treatment in levels(as.factor(sobj$orig.ident))) {
+  cell_table <- table(sobj$general_cell_labels[sobj$orig.ident == treatment])
+  print(paste(treatment, ": ", cell_table["Mesenchymal"], sep = ""))
+}
+```
+
