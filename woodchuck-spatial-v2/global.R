@@ -4,8 +4,8 @@ library(ggplot2)
 
 create_metadata_plot <- function(sobj, col) {
   if (col %in% c("seurat_clusters","orig.ident","SCT_snn_res.0.8","SCT_snn_res.0.2")) {
-    plot1 <- SpatialDimPlot(sobj, alpha = 0.7, group.by = col, images = 'slice1')
-    plot2 <- SpatialDimPlot(sobj, alpha = 0.7, group.by = col, images = 'slice1.1')
+    plot1 <- SpatialDimPlot(sobj, alpha = 0.7, group.by = col, images = 'slice1') + theme(legend.position="top")
+    plot2 <- SpatialDimPlot(sobj, alpha = 0.7, group.by = col, images = 'slice1.1') + theme(legend.position="top")
   } else if (col %in% colnames(sobj@meta.data)) {
     plot1 <- SpatialFeaturePlot(sobj, features = col, images = 'slice1')
     plot2 <- SpatialFeaturePlot(sobj, features = col, images = 'slice1.1')

@@ -6,6 +6,13 @@ library(shiny)
 library(Seurat)
 library(ggplot2)
 library(markdown)
+library(rsconnect)
+
+# Increase maximum size of object to load
+options(shiny.maxRequestSize = 260 * 1024^2)
+
+# Load spatial data
+sobj <- readRDS("merged_spatial_sobj.RDS")
 
 ui <- fluidPage(
   titlePanel("Interactive visualization of woodchuck spatial transcriptomics data"),
@@ -13,7 +20,7 @@ ui <- fluidPage(
   br(),
   
   fluidRow(
-    column(width = 6,
+    column(width = 12,
            uiOutput("text_info_md"),
            br()
            )
@@ -26,7 +33,7 @@ ui <- fluidPage(
            # Create button to download metadata plot
            downloadButton("download_md", "Download metadata plot")
            ),
-    column(width = 4,
+    column(width = 8,
            # Create metadata plot
            plotOutput("mdPlot")
            )
@@ -37,7 +44,7 @@ ui <- fluidPage(
   
   # Add explanatory text between the two plots
   fluidRow(
-    column(width = 6,
+    column(width = 12,
            uiOutput("text_info_genes"),
            br()
            )
@@ -50,7 +57,7 @@ ui <- fluidPage(
            # Create button to download gene plot
            downloadButton("download_genePlot", "Download feature plot")
            ),
-    column(width = 4,
+    column(width = 8,
            # Create feature plot
            plotOutput("genePlot")
            )
@@ -59,7 +66,7 @@ ui <- fluidPage(
   br(),
   
   fluidRow(
-    column(width = 6,
+    column(width = 12,
            uiOutput("text_info_vln"),
            br()
            )
@@ -72,7 +79,7 @@ ui <- fluidPage(
            # Create button to download gene plot
            downloadButton("download_vlnPlot", "Download violin plot")
            ),
-    column(width = 4,
+    column(width = 8,
            # Create violin plot
            plotOutput("vlnPlot")
            )
@@ -80,12 +87,8 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  # Increase maximum size of object to load
-  options(shiny.maxRequestSize = 260 * 1024^2)
   
-  # Load spatial data
-  sobj <- readRDS("~/Dropbox (Bader Lab)/Zoe/scf_version/analysis/spatial/merged_spatial_sobj.RDS")
-  # Set resolution
+  # Set resolution for spatial object
   Idents(sobj) <- "SCT_snn_res.0.2"
   
   # Create metadata plot

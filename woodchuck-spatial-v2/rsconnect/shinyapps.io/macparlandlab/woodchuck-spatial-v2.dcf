@@ -1,0 +1,10 @@
+name: woodchuck-spatial-v2
+title:
+username: macparlandlab
+account: macparlandlab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10049320
+bundleId: 7763464
+url: https://macparlandlab.shinyapps.io/woodchuck-spatial-v2/
+version: 1
