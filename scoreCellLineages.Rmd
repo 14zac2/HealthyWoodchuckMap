@@ -57,9 +57,11 @@ ramSigList
 Load liver map
 
 ```{r}
-sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+#sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
 #Idents(sobj) <- "integrated_snn_res.0.4" # Lower resolution
-Idents(sobj) <- "integrated_snn_res.1.2" # Higher resolution
+#Idents(sobj) <- "integrated_snn_res.1.2" # Higher resolution
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+tissue <- "liver"
 ```
 
 Apply signatures with UCell
@@ -130,6 +132,7 @@ dotplot & NoLegend()
 Create new signatures using markers from Sherry
 
 ```{r}
+sigs <- "sherry"
 mySigs <- list()
 mySigs$Cytotoxic_T_Cells <- c("CD3E","CD8A","GZMH;GZMB","GZMK","IFNG","LTA","ITK","IKZF1",
                               "CST7","EOMES","TIGIT")
@@ -151,6 +154,113 @@ mySigs$Mast_Cells <- c("FCER1A","MS4A2","Prss34","Prss29")
 mySigs$Erythrocytes <- c("HBD;HBB","HBA2;HBA1","ALAS2","ISCA1")
 mySigs$Proliferative <- c("BRCA2","STMN1","TOP2A")
 ```
+
+Now use markers from CZI
+
+```{r}
+sigs <- "czi"
+mySigs <- list()
+mySigs$B_Cell <- c("CD79A","CD79B")
+#mySigs$Naive_B <- c("IGHM") # Gene not found
+mySigs$Plasma_B <- c(#"IGHA1","IGHA2","IGHG1","IGHG2",
+                     #"IGHG3","IGHG4","IGHGP","IGKC",
+                     #"IGLC2","IGLC3",
+                     "IGLL5-1")
+mySigs$Cellcycle <- c("BIRC5","CDC20","CDK1","CDK4",
+                      "HMGB2","MKI67","TOP2A")
+mySigs$Apo_Lipo_Chol <- c("APOA1","APOA2","APOC1","APOC3")
+mySigs$Cholangio <- c("AGXT","AMBP","ANXA4","CLDN1",
+                      "DEFB1","EEF1A1","EPCAM",#"FXYD2",
+                      #"GNB2L1",
+                      "HP;HPR","MT2A",#"NEAT1",
+                      "RPL3")
+mySigs$Keratins_Chol <- c("KRT18","KRT19","KRT7","KRT8")
+mySigs$Mucus_Secreting <- c("LGALS2","MUC1","MUC3A","MUC5B",
+                            "PIGR","SCGB3A1","SLPI","SPINK1",
+                            "TFF3")
+mySigs$Arterial <- c("CD34","PLVAP","PODXL")
+mySigs$cvEndo <- c("ACKR1","RSPO3","WNT2")
+mySigs$cvLSEC <- c("CLEC1B","CLEC4G","CLEC4M;CD209","CLEC4M;CD209-1",
+                   "CLEC4M;CD209-2","CRHBP",
+                   "FCN2;FCN1", #"FCN3",
+                   "STAB1","STAB2")
+mySigs$Endothelial <- c("C7","DNASE1L3","ENG","GSN",
+                        "INMT","LIFR","PECAM1","PLAC8",
+                        "RAMP3","TIMP3","VWF")
+mySigs$ppLSEC <- c(#"ADRIF",
+                   "AQP1","CLEC14A","ID1",
+                   "IGFBP7","MGP","S100A6","SPARCL1",
+                   "TM4SF1")
+mySigs$C_Hepato <- c("ADH1C;ADH1B;ADH1A","ADH4",
+                     "CES1","CYP2E1","CYP3A4;CYP3A7-CYP3A51P;CYP3A7",
+                     "CYP3A4;CYP3A7-CYP3A51P;CYP3A7-1",
+                     "CYP3A4;CYP3A7-CYP3A51P;CYP3A7-2",
+                     "CYP3A4;CYP3A7-CYP3A51P;CYP3A7-3",
+                     "DCXR","GSTA3;GSTA5;GSTA1;GSTA2",
+                     "GSTA3;GSTA1","OAT")
+mySigs$Hepatocyte <- c("ASGR1","SERPINA1")
+mySigs$P_Hepato <- c("AGT","ALB-1","ALDOB","APOA1",
+                     "CYP1A2","CYP2A13;CYP2A6;CYP2A7",
+                     "CYP2A13;CYP2A6;CYP2A7",
+                     "CYP2D6;LOC107987479;LOC107987478",
+                     "CYP2D6;LOC107987479;LOC107987478-1",
+                     "FGA","FGB","GLS2","HAL",
+                     "HAMP","SDS")
+mySigs$abT <- c("CD3D","CD3E")#,"TRAC","TRBC2")
+mySigs$CD4_T <- c("CD4","CD40LG","IL7R","LTB",
+                  "RCAN3","S100A4","SPOCK2")
+mySigs$CD8_T <- c("CD8A","CD8B;CD8B2")
+mySigs$cNK <- c("FCGR3A;FCGR3B",#"GNLY",
+                "GZMH;GZMB","GZMH;GZMB-1","GZMH;GZMB-2",
+                "GZMH;GZMB-3","TBX21",
+                "XCL1;XCL2")
+mySigs$gdT <- c("CD7","CTSW","GATA3") #"TRDC",
+                #"TRGC1","TRGC2")
+mySigs$lrNK <- c("CD69","CMC1","EOMES","GZMK",
+                "KLRC4;KLRC3;KLRC2;KLRC1","Klrf1","XCL1;XCL2")
+mySigs$Activated_Mac <- c("AREG","CCL3L1;CCL3L3;CCL3;CCL18",
+                          "CCL3L1;CCL3L3;CCL3;CCL18-1",
+                          "CCL3L1;CCL3L3;CCL3;CCL18-2",
+                          "CCL3L1;CCL3L3;CCL3;CCL18-3",
+                          "CD83","CXCL2;CXCL3;CXCL1",
+                          "CXCL2;CXCL3;CXCL1-1",
+                          "IL1B","NAMPT","PLAUR",
+                          "SRGN","THBS1")
+mySigs$Kupffer <- c("C1QB","C1QC","CD163",
+                    "CD5L","CTSB","FTL","HMOX1",
+                    "MARCO","SELENOP","SLC40A1","VCAM1")
+mySigs$LAM_like <- c("ACP5","CSTB","FABP5","LGMN",
+                     "PLD3","PSAP")
+mySigs$Macrophage <- c("APOE","CD14",#"CD54",
+                       "CD68","FTH1","IL18","NINJ1",
+                       "PLAC8","PLTP","VSIG4")
+mySigs$MHCII_cDC <- c("CD74","HLA-DPA1","HLA-DQB2;HLA-DQB1",
+                      "HLA-DRA","HLA-DRB5;HLA-DRB1;HLA-DRB3;HLA-DRB4")
+mySigs$Monocyte_derived <- c("FCN2;FCN1","LYZ-1",#"MNDA",
+                             "S100A12","S100A4","S100A6","S100A8",
+                             "S100A9","VCAN")
+mySigs$Myeloid <- c("CST3")
+mySigs$Neutrophil <- c("BASP1","CSF3R","CXCL8","CXCR1",
+                       "CXCR2","FCGR3A;FCGR3B","FPR1","G0S2",
+                       "IFITM3;IFITM2;IFITM1","IFITM3;IFITM2;IFITM1-1",
+                       "IFITM3;IFITM2;IFITM1-2","IFITM3;IFITM2;IFITM1-3",
+                       "S100A11")
+mySigs$Resident_Mac <- c("FCER1G","FOLR2","LYVE1",#"MS4A7",
+                         "TIMD4","TIMP1")
+mySigs$Synapse_Mac <- c("AIF1","COTL1",
+                        "IFITM3;IFITM2;IFITM1","IFITM3;IFITM2;IFITM1-1",
+                        "IFITM3;IFITM2;IFITM1-2","IFITM3;IFITM2;IFITM1-3")
+                        #"LST1")
+mySigs$RBC <- c("HBA2;HBA1","HBD;HBB")
+mySigs$AP1_Stellate <- c("CCL13;CCL2","FBLN5","FOSB","JUNB",
+                         "PDGFRA","SOCS3","SOD2")
+mySigs$Quiescent_Stellate <- c("COLEC11","HGF","PTH1R","RBP1",
+                               "RELN","VIPR1")
+mySigs$Stellate_Fiber <- c("ACTA2","COL1A1","COL1A2",#"MYL9",
+                           "TAGLN")
+mySigs$VSMC <- c("CD9","CRYAB","PMEPA1","RGCC")
+```
+
 
 Check certain genes with Feature Plot
 
@@ -177,8 +287,33 @@ dotplot <- DotPlot(subset(sobj, downsample = 500),
   labs(y = "Cell type", x = "Lineage signature")
   #theme(axis.text = element_text(size = 8))
 dotplot
-pdf(paste("./figures/", tissue, "/", tissue, "_lineage_dotplot.pdf", sep = ""),
-    height = 8, width = 12)
+pdf(paste("./figures/", tissue, "/", tissue, "_", 
+          sigs ,"_lineage_dotplot.pdf", sep = ""),
+    height = 8, width = 14)
+dotplot
+dev.off()
+```
+
+# Dotplot of genes composing signatures
+
+View these genes as a dotplot.
+
+```{r}
+newSigs <- unique(unlist(mySigs))
+newSigs <- newSigs[newSigs != "TFF3"]
+newSigs <- newSigs[newSigs != "SCGB3A1"]
+newSigs <- newSigs[newSigs != "TAGLN"]
+dotplot <- DotPlot(subset(sobj, downsample = 500),
+                   features = newSigs,
+                   group.by = "general_cell_labels") + 
+  scale_colour_viridis(option="magma") +
+  RotatedAxis() +
+  labs(y = "Cell type", x = "Human marker genes")
+  #theme(axis.text = element_text(size = 8))
+dotplot
+pdf(paste("./figures/", tissue, "/", tissue, "_", 
+          sigs ,"_lineageGenes_dotplot.pdf", sep = ""),
+    height = 8, width = 50)
 dotplot
 dev.off()
 ```
