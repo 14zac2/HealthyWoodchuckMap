@@ -349,6 +349,20 @@ for(num in 1:length(geneCodes)) {
 }
 ```
 
+Lymphocytes weird genes:
+
+```{r}
+geneCodes <- c("sct_CCR7")
+genes <- geneCodes
+#plot <- FeaturePlot_scCustom(sobj,
+#                      features = geneCodes,
+#                      colors_use = viridis_light_high) +
+#    ggtitle(bquote(~italic(.(genes))))
+plot <- FeaturePlot(sobj, features = "sct_CCR7")
+print(plot)
+```
+
+
 Mesenchyme:
 
 ```{r}
