@@ -1802,12 +1802,278 @@ Idents(sobj) &lt;- res</code></pre>
 <p>Load human data from MacParland et al.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubG9hZChcIn4vRHJvcGJveC9ab2Uvc2NmX3ZlcnNpb24vYW5hbHlzaXMvY29ycmVsYXRpb25UZXN0cy9IdW1hbkxpdmVyLlJEYXRhXCIpXG4jIFJ1biBTQ1RyYW5zZm9ybVxuSHVtYW5MaXZlclNldXJhdCA8LSBVcGRhdGVTZXVyYXRPYmplY3QoSHVtYW5MaXZlclNldXJhdClcbkh1bWFuTGl2ZXJTZXVyYXQgPC0gU0NUcmFuc2Zvcm0oSHVtYW5MaXZlclNldXJhdClcbiMgUmVwbGFjZSBjbHVzdGVyIG51bWJlcnMgd2l0aCBuYW1lc1xubGV2ZWxzKElkZW50cyhIdW1hbkxpdmVyU2V1cmF0KSkgPC0gYyhcIkhlcCAxXCIsIFwiQWxwaGEtYmV0YSBUIGNlbGxzXCIsIFwiSGVwIDJcIixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJJbmZsYW1tYXRvcnkgbWFjc1wiLCBcIkhlcCAzXCIsIFwiSGVwIDRcIixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJQbGFzbWEgY2VsbHNcIiwgXCJOSy1saWtlIGNlbGxzXCIsIFwiR2FtbWEtZGVsdGEgVCBjZWxsc1wiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIk5vbi1pbmZsYW1tYXRvcnkgbWFjc1wiLCBcIlBlcmlwb3J0YWwgTFNFQ3NcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiQ2VudHJhbCB2ZW5vdXMgTFNFQ3NcIixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJQb3J0YWwgZW5kb3RoZWxpYWwgY2VsbHNcIiwgXCJIZXAgNVwiLCBcIkhlcCA2XCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiTWF0dXJlIEIgY2VsbHNcIiwgXCJDaG9sYW5naW9jeXRlc1wiLCBcIkdhbW1hLWRlbHRhIFQgY2VsbHMgMlwiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIkVyeXRocm9pZCBjZWxsc1wiLCBcIkhlcGF0aWMgc3RlbGxhdGUgY2VsbHNcIilcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubG9hZChcIn4vRHJvcGJveC9ab2Uvc2NmX3ZlcnNpb24vYW5hbHlzaXMvY29ycmVsYXRpb25UZXN0cy9IdW1hbkxpdmVyLlJEYXRhXCIpXG4jIFJ1biBTQ1RyYW5zZm9ybVxuSHVtYW5MaXZlclNldXJhdCA8LSBVcGRhdGVTZXVyYXRPYmplY3QoSHVtYW5MaXZlclNldXJhdClcbmBgYCJ9 -->
 <pre class="r"><code>load(&quot;~/Dropbox/Zoe/scf_version/analysis/correlationTests/HumanLiver.RData&quot;)
 # Run SCTransform
-HumanLiverSeurat &lt;- UpdateSeuratObject(HumanLiverSeurat)
-HumanLiverSeurat &lt;- SCTransform(HumanLiverSeurat)
-# Replace cluster numbers with names
+HumanLiverSeurat &lt;- UpdateSeuratObject(HumanLiverSeurat)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiVmFsaWRhdGluZyBvYmplY3Qgc3RydWN0dXJlXG5VcGRhdGluZyBvYmplY3Qgc2xvdHNcbkVuc3VyaW5nIGtleXMgYXJlIGluIHRoZSBwcm9wZXIgc3RydWN0dXJlXG5XYXJuaW5nOiBBc3NheSBSTkEgY2hhbmdpbmcgZnJvbSBBc3NheSB0byBBc3NheVdhcm5pbmc6IERpbVJlZHVjIHBjYSBjaGFuZ2luZyBmcm9tIERpbVJlZHVjIHRvIERpbVJlZHVjV2FybmluZzogRGltUmVkdWMgdHNuZSBjaGFuZ2luZyBmcm9tIERpbVJlZHVjIHRvIERpbVJlZHVjRW5zdXJpbmcga2V5cyBhcmUgaW4gdGhlIHByb3BlciBzdHJ1Y3R1cmVcbkVuc3VyaW5nIGZlYXR1cmUgbmFtZXMgZG9uJ3QgaGF2ZSB1bmRlcnNjb3JlcyBvciBwaXBlc1xuVXBkYXRpbmcgc2xvdHMgaW4gUk5BXG5VcGRhdGluZyBzbG90cyBpbiBwY2FcblVwZGF0aW5nIHNsb3RzIGluIHRzbmVcblNldHRpbmcgdHNuZSBEaW1SZWR1YyB0byBnbG9iYWxcblZhbGlkYXRpbmcgb2JqZWN0IHN0cnVjdHVyZSBmb3IgQXNzYXkg4oCYUk5B4oCZXG5WYWxpZGF0aW5nIG9iamVjdCBzdHJ1Y3R1cmUgZm9yIERpbVJlZHVjIOKAmHBjYeKAmVxuVmFsaWRhdGluZyBvYmplY3Qgc3RydWN0dXJlIGZvciBEaW1SZWR1YyDigJh0c25l4oCZXG5PYmplY3QgcmVwcmVzZW50YXRpb24gaXMgY29uc2lzdGVudCB3aXRoIHRoZSBtb3N0IGN1cnJlbnQgU2V1cmF0IHZlcnNpb25cbiJ9 -->
+<pre><code>Validating object structure
+Updating object slots
+Ensuring keys are in the proper structure
+Warning: Assay RNA changing from Assay to AssayWarning: DimReduc pca changing from DimReduc to DimReducWarning: DimReduc tsne changing from DimReduc to DimReducEnsuring keys are in the proper structure
+Ensuring feature names don&#39;t have underscores or pipes
+Updating slots in RNA
+Updating slots in pca
+Updating slots in tsne
+Setting tsne DimReduc to global
+Validating object structure for Assay ‘RNA’
+Validating object structure for DimReduc ‘pca’
+Validating object structure for DimReduc ‘tsne’
+Object representation is consistent with the most current Seurat version</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuSHVtYW5MaXZlclNldXJhdCA8LSBTQ1RyYW5zZm9ybShIdW1hbkxpdmVyU2V1cmF0KVxuYGBgIn0= -->
+<pre class="r"><code>HumanLiverSeurat &lt;- SCTransform(HumanLiverSeurat)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUnVubmluZyBTQ1RyYW5zZm9ybSBvbiBhc3NheTogUk5BXG52c3QuZmxhdm9yPSd2Micgc2V0LCBzZXR0aW5nIG1vZGVsIHRvIHVzZSBmaXhlZCBzbG9wZSBhbmQgZXhjbHVkZSBwb2lzc29uIGdlbmVzLlxuQ2FsY3VsYXRpbmcgY2VsbCBhdHRyaWJ1dGVzIGZyb20gaW5wdXQgVU1JIG1hdHJpeDogbG9nX3VtaVxuVG90YWwgU3RlcCAxIGdlbmVzOiAxNzUwMVxuVG90YWwgb3ZlcmRpc3BlcnNlZCBnZW5lczogMTQ3NjRcbkV4Y2x1ZGluZyAyNzM3IGdlbmVzIGZyb20gU3RlcCAxIGJlY2F1c2UgdGhleSBhcmUgbm90IG92ZXJkaXNwZXJzZWQuXG5WYXJpYW5jZSBzdGFiaWxpemluZyB0cmFuc2Zvcm1hdGlvbiBvZiBjb3VudCBtYXRyaXggb2Ygc2l6ZSAxODcxNSBieSA4NDQ0XG5Nb2RlbCBmb3JtdWxhIGlzIHkgfiBsb2dfdW1pXG5HZXQgTmVnYXRpdmUgQmlub21pYWwgcmVncmVzc2lvbiBwYXJhbWV0ZXJzIHBlciBnZW5lXG5Vc2luZyAyMDAwIGdlbmVzLCA1MDAwIGNlbGxzXG4ifQ== -->
+<pre><code>Running SCTransform on assay: RNA
+vst.flavor=&#39;v2&#39; set, setting model to use fixed slope and exclude poisson genes.
+Calculating cell attributes from input UMI matrix: log_umi
+Total Step 1 genes: 17501
+Total overdispersed genes: 14764
+Excluding 2737 genes from Step 1 because they are not overdispersed.
+Variance stabilizing transformation of count matrix of size 18715 by 8444
+Model formula is y ~ log_umi
+Get Negative Binomial regression parameters per gene
+Using 2000 genes, 5000 cells</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAwJVxuIn0= -->
+<pre><code>
+  |                                                                                          
+  |                                                                                    |   0%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuXG4ifQ== -->
+<pre><code>Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI1JVxuIn0= -->
+<pre><code>
+  |                                                                                          
+  |=====================                                                               |  25%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuXG4ifQ== -->
+<pre><code>Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDUwJVxuIn0= -->
+<pre><code>
+  |                                                                                          
+  |==========================================                                          |  50%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuXG4ifQ== -->
+<pre><code>Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgIHwgIDc1JVxuIn0= -->
+<pre><code>
+  |                                                                                          
+  |===============================================================                     |  75%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuV2FybmluZzogdXNlTmFtZXMgPSBOQSBpcyBkZXByZWNhdGVkLiBJbnN0ZWFkLCBzcGVjaWZ5IGVpdGhlciB1c2VOYW1lcyA9IFRSVUUgb3IgdXNlTmFtZXMgPSBUUlVFLldhcm5pbmc6IHVzZU5hbWVzID0gTkEgaXMgZGVwcmVjYXRlZC4gSW5zdGVhZCwgc3BlY2lmeSBlaXRoZXIgdXNlTmFtZXMgPSBUUlVFIG9yIHVzZU5hbWVzID0gVFJVRS5XYXJuaW5nOiB1c2VOYW1lcyA9IE5BIGlzIGRlcHJlY2F0ZWQuIEluc3RlYWQsIHNwZWNpZnkgZWl0aGVyIHVzZU5hbWVzID0gVFJVRSBvciB1c2VOYW1lcyA9IFRSVUUuXG4ifQ== -->
+<pre><code>Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.Warning: useNames = NA is deprecated. Instead, specify either useNames = TRUE or useNames = TRUE.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PXwgMTAwJVxuIn0= -->
+<pre><code>
+  |                                                                                          
+  |====================================================================================| 100%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiU2V0dGluZyBlc3RpbWF0ZSBvZiAgMTE3IGdlbmVzIHRvIGluZiBhcyB0aGV0YV9tbS90aGV0YV9tbGUgPCAxZS0zXG4jIG9mIHN0ZXAxIHBvaXNzb24gZ2VuZXMgKHZhcmlhbmNlIDwgbWVhbik6IDBcbiMgb2YgbG93IG1lYW4gZ2VuZXMgKG1lYW4gPCAwLjAwMSk6IDEzNjNcblRvdGFsICMgb2YgU3RlcDEgcG9pc3NvbiBnZW5lcyAodGhldGE9SW5mOyB2YXJpYW5jZSA8IG1lYW4pOiAxMzZcblRvdGFsICMgb2YgcG9pc3NvbiBnZW5lcyAodGhldGE9SW5mOyB2YXJpYW5jZSA8IG1lYW4pOiAzODk2XG5DYWxsaW5nIG9mZnNldCBtb2RlbCBmb3IgYWxsIDM4OTYgcG9pc3NvbiBnZW5lc1xuRm91bmQgMTU2IG91dGxpZXJzIC0gdGhvc2Ugd2lsbCBiZSBpZ25vcmVkIGluIGZpdHRpbmcvcmVndWxhcml6YXRpb24gc3RlcFxuXG5JZ25vcmluZyB0aGV0YSBpbmYgZ2VuZXNcblJlcGxhY2luZyBmaXQgcGFyYW1zIGZvciAzODk2IHBvaXNzb24gZ2VuZXMgYnkgdGhldGE9SW5mXG5TZXR0aW5nIG1pbl92YXJpYW5jZSBiYXNlZCBvbiBtZWRpYW4gVU1JOiAgMC4wNFxuU2Vjb25kIHN0ZXA6IEdldCByZXNpZHVhbHMgdXNpbmcgZml0dGVkIHBhcmFtZXRlcnMgZm9yIDE4NzE1IGdlbmVzXG4ifQ== -->
+<pre><code>Setting estimate of  117 genes to inf as theta_mm/theta_mle &lt; 1e-3
+# of step1 poisson genes (variance &lt; mean): 0
+# of low mean genes (mean &lt; 0.001): 1363
+Total # of Step1 poisson genes (theta=Inf; variance &lt; mean): 136
+Total # of poisson genes (theta=Inf; variance &lt; mean): 3896
+Calling offset model for all 3896 poisson genes
+Found 156 outliers - those will be ignored in fitting/regularization step
+
+Ignoring theta inf genes
+Replacing fit params for 3896 poisson genes by theta=Inf
+Setting min_variance based on median UMI:  0.04
+Second step: Get residuals using fitted parameters for 18715 genes</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAwJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMyVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA4JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxMSVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTMlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDE2JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxOCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMjElXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI0JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyNiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMjklXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDMyJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAzNCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMzclXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDM5JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA0MiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNDUlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDQ3JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1MCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNTMlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDU1JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1OCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNjElXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDYzJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA2NiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNjglXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgIHwgIDcxJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICB8ICA3NCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgfCAgNzYlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgIHwgIDc5JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICB8ICA4MiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgfCAgODQlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgIHwgIDg3JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICB8ICA4OSVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgfCAgOTIlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgIHwgIDk1JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICB8ICA5NyVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09fCAxMDAlXG4ifQ== -->
+<pre><code>
+  |                                                                                          
+  |                                                                                    |   0%
+  |                                                                                          
+  |==                                                                                  |   3%
+  |                                                                                          
+  |====                                                                                |   5%
+  |                                                                                          
+  |=======                                                                             |   8%
+  |                                                                                          
+  |=========                                                                           |  11%
+  |                                                                                          
+  |===========                                                                         |  13%
+  |                                                                                          
+  |=============                                                                       |  16%
+  |                                                                                          
+  |===============                                                                     |  18%
+  |                                                                                          
+  |==================                                                                  |  21%
+  |                                                                                          
+  |====================                                                                |  24%
+  |                                                                                          
+  |======================                                                              |  26%
+  |                                                                                          
+  |========================                                                            |  29%
+  |                                                                                          
+  |===========================                                                         |  32%
+  |                                                                                          
+  |=============================                                                       |  34%
+  |                                                                                          
+  |===============================                                                     |  37%
+  |                                                                                          
+  |=================================                                                   |  39%
+  |                                                                                          
+  |===================================                                                 |  42%
+  |                                                                                          
+  |======================================                                              |  45%
+  |                                                                                          
+  |========================================                                            |  47%
+  |                                                                                          
+  |==========================================                                          |  50%
+  |                                                                                          
+  |============================================                                        |  53%
+  |                                                                                          
+  |==============================================                                      |  55%
+  |                                                                                          
+  |=================================================                                   |  58%
+  |                                                                                          
+  |===================================================                                 |  61%
+  |                                                                                          
+  |=====================================================                               |  63%
+  |                                                                                          
+  |=======================================================                             |  66%
+  |                                                                                          
+  |=========================================================                           |  68%
+  |                                                                                          
+  |============================================================                        |  71%
+  |                                                                                          
+  |==============================================================                      |  74%
+  |                                                                                          
+  |================================================================                    |  76%
+  |                                                                                          
+  |==================================================================                  |  79%
+  |                                                                                          
+  |=====================================================================               |  82%
+  |                                                                                          
+  |=======================================================================             |  84%
+  |                                                                                          
+  |=========================================================================           |  87%
+  |                                                                                          
+  |===========================================================================         |  89%
+  |                                                                                          
+  |=============================================================================       |  92%
+  |                                                                                          
+  |================================================================================    |  95%
+  |                                                                                          
+  |==================================================================================  |  97%
+  |                                                                                          
+  |====================================================================================| 100%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ29tcHV0aW5nIGNvcnJlY3RlZCBjb3VudCBtYXRyaXggZm9yIDE4NzE1IGdlbmVzXG4ifQ== -->
+<pre><code>Computing corrected count matrix for 18715 genes</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAwJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMyVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA4JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxMSVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTMlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDE2JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxOCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMjElXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI0JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyNiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMjklXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDMyJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAzNCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMzclXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDM5JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA0MiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNDUlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDQ3JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1MCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNTMlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDU1JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1OCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNjElXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDYzJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA2NiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNjglXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgIHwgIDcxJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICB8ICA3NCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgfCAgNzYlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgIHwgIDc5JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICB8ICA4MiVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgfCAgODQlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgIHwgIDg3JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICB8ICA4OSVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgfCAgOTIlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgIHwgIDk1JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICB8ICA5NyVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09fCAxMDAlXG4ifQ== -->
+<pre><code>
+  |                                                                                          
+  |                                                                                    |   0%
+  |                                                                                          
+  |==                                                                                  |   3%
+  |                                                                                          
+  |====                                                                                |   5%
+  |                                                                                          
+  |=======                                                                             |   8%
+  |                                                                                          
+  |=========                                                                           |  11%
+  |                                                                                          
+  |===========                                                                         |  13%
+  |                                                                                          
+  |=============                                                                       |  16%
+  |                                                                                          
+  |===============                                                                     |  18%
+  |                                                                                          
+  |==================                                                                  |  21%
+  |                                                                                          
+  |====================                                                                |  24%
+  |                                                                                          
+  |======================                                                              |  26%
+  |                                                                                          
+  |========================                                                            |  29%
+  |                                                                                          
+  |===========================                                                         |  32%
+  |                                                                                          
+  |=============================                                                       |  34%
+  |                                                                                          
+  |===============================                                                     |  37%
+  |                                                                                          
+  |=================================                                                   |  39%
+  |                                                                                          
+  |===================================                                                 |  42%
+  |                                                                                          
+  |======================================                                              |  45%
+  |                                                                                          
+  |========================================                                            |  47%
+  |                                                                                          
+  |==========================================                                          |  50%
+  |                                                                                          
+  |============================================                                        |  53%
+  |                                                                                          
+  |==============================================                                      |  55%
+  |                                                                                          
+  |=================================================                                   |  58%
+  |                                                                                          
+  |===================================================                                 |  61%
+  |                                                                                          
+  |=====================================================                               |  63%
+  |                                                                                          
+  |=======================================================                             |  66%
+  |                                                                                          
+  |=========================================================                           |  68%
+  |                                                                                          
+  |============================================================                        |  71%
+  |                                                                                          
+  |==============================================================                      |  74%
+  |                                                                                          
+  |================================================================                    |  76%
+  |                                                                                          
+  |==================================================================                  |  79%
+  |                                                                                          
+  |=====================================================================               |  82%
+  |                                                                                          
+  |=======================================================================             |  84%
+  |                                                                                          
+  |=========================================================================           |  87%
+  |                                                                                          
+  |===========================================================================         |  89%
+  |                                                                                          
+  |=============================================================================       |  92%
+  |                                                                                          
+  |================================================================================    |  95%
+  |                                                                                          
+  |==================================================================================  |  97%
+  |                                                                                          
+  |====================================================================================| 100%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ2FsY3VsYXRpbmcgZ2VuZSBhdHRyaWJ1dGVzXG5XYWxsIGNsb2NrIHBhc3NlZDogVGltZSBkaWZmZXJlbmNlIG9mIDMxLjM0OTI5IHNlY3NcbkRldGVybWluZSB2YXJpYWJsZSBmZWF0dXJlc1xuQ2VudGVyaW5nIGRhdGEgbWF0cml4XG5cbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDAlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI1JVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1MCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICAgICAgICAgICAgICAgICAgICAgfCAgNzUlXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PXwgMTAwJVxuUGxhY2UgY29ycmVjdGVkIGNvdW50IG1hdHJpeCBpbiBjb3VudHMgc2xvdFxuU2V0IGRlZmF1bHQgYXNzYXkgdG8gU0NUXG4ifQ== -->
+<pre><code>Calculating gene attributes
+Wall clock passed: Time difference of 31.34929 secs
+Determine variable features
+Centering data matrix
+
+  |                                                                                          
+  |                                                                                    |   0%
+  |                                                                                          
+  |=====================                                                               |  25%
+  |                                                                                          
+  |==========================================                                          |  50%
+  |                                                                                          
+  |===============================================================                     |  75%
+  |                                                                                          
+  |====================================================================================| 100%
+Place corrected count matrix in counts slot
+Set default assay to SCT</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZXBsYWNlIGNsdXN0ZXIgbnVtYmVycyB3aXRoIG5hbWVzXG5sZXZlbHMoSWRlbnRzKEh1bWFuTGl2ZXJTZXVyYXQpKSA8LSBjKFwiSGVwIDFcIiwgXCJBbHBoYS1iZXRhIFQgY2VsbHNcIiwgXCJIZXAgMlwiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIkluZmxhbW1hdG9yeSBtYWNzXCIsIFwiSGVwIDNcIiwgXCJIZXAgNFwiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIlBsYXNtYSBjZWxsc1wiLCBcIk5LLWxpa2UgY2VsbHNcIiwgXCJHYW1tYS1kZWx0YSBUIGNlbGxzXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiTm9uLWluZmxhbW1hdG9yeSBtYWNzXCIsIFwiUGVyaXBvcnRhbCBMU0VDc1wiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJDZW50cmFsIHZlbm91cyBMU0VDc1wiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIlBvcnRhbCBlbmRvdGhlbGlhbCBjZWxsc1wiLCBcIkhlcCA1XCIsIFwiSGVwIDZcIixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJNYXR1cmUgQiBjZWxsc1wiLCBcIkNob2xhbmdpb2N5dGVzXCIsIFwiR2FtbWEtZGVsdGEgVCBjZWxscyAyXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiRXJ5dGhyb2lkIGNlbGxzXCIsIFwiSGVwYXRpYyBzdGVsbGF0ZSBjZWxsc1wiKVxuYGBgIn0= -->
+<pre class="r"><code># Replace cluster numbers with names
 levels(Idents(HumanLiverSeurat)) &lt;- c(&quot;Hep 1&quot;, &quot;Alpha-beta T cells&quot;, &quot;Hep 2&quot;,
                                       &quot;Inflammatory macs&quot;, &quot;Hep 3&quot;, &quot;Hep 4&quot;,
                                       &quot;Plasma cells&quot;, &quot;NK-like cells&quot;, &quot;Gamma-delta T cells&quot;,
