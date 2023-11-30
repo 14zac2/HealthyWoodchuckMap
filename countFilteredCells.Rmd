@@ -1,0 +1,65 @@
+---
+title: "Calculate pre- and post-filtering cells"
+output: html_notebook
+---
+
+This script counts cells for liver and PBMC objects from each woodchuck, after mitochondrial and DropletQC filtering (if applicable).
+
+```{r}
+library(Seurat)
+library(scClustViz)
+```
+
+# Liver mito
+
+Count cells in the liver that passed 50% mitochondrial content threshold. NOTE: this is after biopsy hepatocytes were removed.
+
+Read in object
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/allMerged_noDropletQC.RDS")
+DimPlot(sobj, raster = FALSE)
+```
+
+```{r}
+table(sobj$orig.ident)
+```
+
+# Liver DropletQC
+
+Read in object
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+DimPlot(sobj)
+```
+
+```{r}
+table(sobj$orig.ident)
+```
+
+# PBMC mito
+
+Count PBMC cells from each woodchuck that passed the 10% mitochondrial content filter.
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/integrated_PBMC_cca_kanchor5_scClustViz.RData")
+DimPlot(scSeurat)
+```
+
+```{r}
+table(scSeurat$orig.ident)
+```
+
+# Stimulated mito
+
+```{r}
+load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/3391/integrated_3391_stimulation_cca_kanchor5_scClustViz.RData")
+DimPlot(scSeurat)
+```
+
+```{r}
+table(scSeurat$orig.ident)
+```
+
+
