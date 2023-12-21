@@ -150,6 +150,53 @@ plot
 dev.off()
 ```
 
+Correlate UMAP zonation scores with gene expression
+
+```{r}
+FeaturePlot(sobj, features = c("WNT2", "Pericentral_UCell"), blend = TRUE)
+FeatureScatter(sobj, feature1 = "WNT2", feature2 = "Pericentral_UCell")
+```
+
+Calculate Z-score for each gene for CV and PP signatures
+
+```{r}
+zscore = (sobj@assays$SCT@scale.data['CYP2E1',] - sobj$Pericentral_UCell)/sd(sobj$Pericentral_UCell)
+sobj$cyp2e1_zscore <- scale(zscore)
+SpatialFeaturePlot(sobj, features = 'cyp2e1_zscore', images = 'slice1')
+```
+
+Try with RSPO3
+
+```{r}
+zscore = (sobj@assays$SCT@scale.data['RSPO3',] - sobj$Pericentral_UCell)/sd(sobj$Pericentral_UCell)
+sobj$rspo3_zscore <- scale(zscore)
+SpatialFeaturePlot(sobj, features = 'rspo3_zscore', images = 'slice1')
+```
+
+Correlate all genes with CV and PP signatures
+
+```{r}
+cv_cor <- apply(sobj@assays$SCT@counts, 1, function (x) cor(x, y = sobj$Pericentral_UCell,
+                                                                method = "spearman"))
+head(sort(cv_cor, decreasing = TRUE))
+pp_cor <- apply(sobj@assays$SCT@counts, 1, function (x) cor(x, y = sobj$Periportal_UCell,
+                                                                method = "spearman"))
+head(sort(pp_cor, decreasing = TRUE))
+```
+
+Write table
+
+```{r}
+spatial_cors <- cbind(cv_cor, pp_cor)
+write.table(spatial_cors,
+            file = "./figures/spatial/spatial_gene_correlations.tsv",
+            quote = FALSE,
+            sep = "\t",
+            row.names = TRUE,
+            col.names = TRUE)
+```
+
+
 Save object if needed
 
 ```{r}
