@@ -119,6 +119,61 @@ for (clust in levels(as.factor(Idents(scSeurat)))) {
 }
 ```
 
+Get ranked gene lists for GSEA (T cells)
+
+```{r}
+cells_stim <- colnames(scSeurat)[(Idents(scSeurat) == 2 | Idents(scSeurat) == 6) & scSeurat$tissue_type == "6hrs_PMAIO"]
+cells_unstim <- colnames(scSeurat)[(Idents(scSeurat) == 2 | Idents(scSeurat) == 6) & scSeurat$tissue_type == "6hrs_unstim"]
+markers <- RunPresto(scSeurat,
+                     ident.1 = cells_stim,
+                     ident.2 = cells_unstim,
+                     only.pos = FALSE,
+                     min.pct = 0,
+                     logfc.threshold = 0,
+                     recorrect_umi = FALSE)
+# Sort by avg_log2FC
+markers <- markers[order(-markers$avg_log2FC),]
+# Only keep gene names and avg_log2FC
+gene <- row.names(markers)
+avg_log2FC <- markers[,'avg_log2FC']
+markers <- cbind(gene, avg_log2FC)
+head(markers)
+write.table(markers,
+            file = "./figures/stimulation/tcells_stim_vs_unstim.rnk",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = TRUE)
+```
+
+Get ranked gene lists for GSEA (Myeloid)
+
+```{r}
+cells_stim <- colnames(scSeurat)[Idents(scSeurat) == 1 & scSeurat$tissue_type == "6hrs_PMAIO"]
+cells_unstim <- colnames(scSeurat)[Idents(scSeurat) == 1 & scSeurat$tissue_type == "6hrs_unstim"]
+markers <- RunPresto(scSeurat,
+                     ident.1 = cells_stim,
+                     ident.2 = cells_unstim,
+                     only.pos = FALSE,
+                     min.pct = 0,
+                     logfc.threshold = 0,
+                     recorrect_umi = FALSE)
+# Sort by avg_log2FC
+markers <- markers[order(-markers$avg_log2FC),]
+# Only keep gene names and avg_log2FC
+gene <- row.names(markers)
+avg_log2FC <- markers[,'avg_log2FC']
+markers <- cbind(gene, avg_log2FC)
+head(markers)
+write.table(markers,
+            file = "./figures/stimulation/myeloid_stim_vs_unstim.rnk",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = TRUE)
+```
+
+
 Look for T-cell signatures.
 
 ```{r}
