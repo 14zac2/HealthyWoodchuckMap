@@ -32,8 +32,8 @@ Grab cluster IDs and replace with cell-type names
 - Endothelial cells: 0, 5, 8, 11, 30, 32, 33, 41, 42
 - Lymphocytes: 1, 2, 4, 6, 7, 10, 12, 14, 24, 35
 - CD3+ Tissue-resident memory T cells: 1, 2, 4, 7, 10, 12, 16
-- CD3+ NK/T cells (XCL1;XCL2+): 6, 24, 39
-- CD3+ Naive regulatory T cells (LEF1+): 14
+- CD3+ NK-like cells (XCL1;XCL2+): 6, 24, 39
+- CD3+ Regulatory T cells (LEF1+): 14
 - CD3+ Proliferating T cells (TOP2A+): 35
 - Myeloid cells: 3, 9, 15, 17, 18, 22, 31, 37, 40, 43
 - Macrophages (CD5L+): 3, 22, 43
@@ -84,13 +84,13 @@ clusters <- gsub('\\b1\\b|\\b2\\b|\\b4\\b|\\b7\\b|\\b10\\b|\\b12\\b|\\b16\\b',
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b6\\b|\\b24\\b|\\b39\\b', 
-                 "CD3+ NK/T cells",
+                 "CD3+ NK-like cells",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b3\\b|\\b22\\b|\\b43\\b', "Macrophages",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b14\\b', "CD3+ Naive regulatory T cells",
+clusters <- gsub('\\b14\\b', "CD3+ Regulatory T cells",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b35\\b', "CD3+ Proliferating T cells",
@@ -102,7 +102,7 @@ clusters <- gsub('\\b9\\b|\\b18\\b', "CD14+/CD16+ Monocytes",
 clusters <- gsub('\\b15\\b|\\b17\\b', "CD14-/CD16+ Non-classical monocytes",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b31\\b', "cDC1 conventional DC type 1",
+clusters <- gsub('\\b31\\b', "cDC1 Conventional DC type 1",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b13\\b|\\b16\\b|\\b19\\b|\\b20\\b|\\b21\\b|\\b25\\b|\\b28\\b|\\b36\\b', "Hepatocytes",
@@ -173,13 +173,13 @@ Grab cluster IDs and replace with cell-type names
 - Monocytes 4 (PLAC8+/dendritic?): 14 
 - Lymphocytes: 1, 2, 4, 5, 7, 10, 13, 15, 17
 - CD3+/LEF1+/TCF7+ memory T cells: 1, 5, 10, 13, 17
-- CD3+/CD8A+/NKG7+ NK/T cells (XCL1;XCL2+): 4, 7
+- CD3+/CD8A+/NKG7+ NK-like cells (XCL1;XCL2+): 4, 7
 - CD3+/MKI67+/TOP2A+ Proliferating T cells (dividing): 23
 - CD3+/GATA3+/MAF+ TH2-like T cells 1 (GATA3+): 2
 - CD3+/GATA3+/MAF+ TH2-like T cells 2: 15
 - B-cells: 3, 11
 - HSC: 16
-- Plasma B: 18
+- Antibody-secreting B cells: 18
 - Megakaryocytes: 19
 - Mast cell: 22
 - Erythrocytes: 12
@@ -223,7 +223,7 @@ clusters <- gsub('\\b3\\b|\\b11\\b', "B cells",
 clusters <- gsub('\\b2\\b', "CD3+/GATA3+/MAF+ TH2-like T cells 1",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b4\\b|\\b7\\b', "CD3+/CD8A+/NKG7+ NK/T cells",
+clusters <- gsub('\\b4\\b|\\b7\\b', "CD3+/CD8A+/NKG7+ NK-like cells",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b0\\b|\\b14\\b|\\b21\\b|\\b24\\b', 
@@ -242,7 +242,7 @@ clusters <- gsub('\\b6\\b|\\b9\\b', "CD14-/CD16- Monocytes",
 clusters <- gsub('\\b8\\b', "CD14+/CD16+ Monocytes",
                  clusters,
                  perl = TRUE)
-clusters <- gsub('\\b18\\b', "Plasma B cells",
+clusters <- gsub('\\b18\\b', "Antibody-secreting B cells",
                  clusters,
                  perl = TRUE)
 clusters <- gsub('\\b16\\b', "Hematopoietic stem cells",
@@ -300,7 +300,7 @@ Grab cluster IDs and replace with cell-type names
 - Hepatocytes: 4, 5, 12
 - T cells: 2, 6
 - Lymphocytes: 1
-- Plasma cells: 11
+- Antibody-secreting B cells: 11
 Clusters 0, 4, 8, 10 have odd gene expression
 
 Visualise general cell-type markers
@@ -382,8 +382,8 @@ clusters <- gsub('\\b12\\b', "Hepatocytes (12)", clusters, perl = TRUE)
 clusters <- gsub('\\b13\\b', "Cholangiocytes (13)", clusters, perl = TRUE)
 clusters <- gsub('\\b10\\b', "Endothelial (10)", clusters, perl = TRUE)
 clusters <- gsub('\\b1\\b', "Myeloid (1)", clusters, perl = TRUE)
-clusters <- gsub('\\b2\\b', "CD3+ NK/T cells (2)", clusters, perl = TRUE)
-clusters <- gsub('\\b6\\b', "CD3+ NK/T cells (6)", clusters, perl = TRUE)
+clusters <- gsub('\\b2\\b', "CD3+ NK-like cells (2)", clusters, perl = TRUE)
+clusters <- gsub('\\b6\\b', "CD3+ NK-like cells (6)", clusters, perl = TRUE)
 clusters <- gsub('\\b4\\b', "Hepatocytes (4)", clusters, perl = TRUE)
 clusters <- gsub('\\b5\\b', "Hepatocytes (5)", clusters, perl = TRUE)
 clusters <- gsub('\\b8\\b', "Mesenchymal (8)", clusters, perl = TRUE)
