@@ -49,6 +49,16 @@ for (gene in genes) {
 }
 ```
 
+Look at other genes
+
+```{r}
+gene <- "Saa2;Saa1-1"
+plot1 <- SpatialFeaturePlot(sobj, features = gene, images = 'slice1') & NoLegend()
+plot2 <- SpatialFeaturePlot(sobj, features = gene, images = 'slice1.1') & NoLegend()
+print(plot1 + plot2)
+```
+
+
 Calculate markers
 
 ```{r}
