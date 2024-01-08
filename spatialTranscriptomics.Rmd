@@ -23,11 +23,25 @@ sobj <- readRDS("../spatial/merged_spatial_sobj.RDS")
 Idents(sobj) <- "SCT_snn_res.0.2"
 ```
 
+Rename clusters
+
+```{r}
+clustNames <- Idents(sobj)
+clustNames <- gsub(0, "Cluster 0 (Periportal)", clustNames)
+clustNames <- gsub(1, "Cluster 1 (Pericentral)", clustNames)
+clustNames <- gsub(2, "Cluster 2 (Immune)", clustNames)
+clustNames <- gsub(3, "Cluster 3 (Immune)", clustNames)
+clustNames <- gsub(4, "Cluster 4 (Immune)", clustNames)
+sobj$general_cell_labels <- clustNames
+SpatialDimPlot(sobj, group.by = "general_cell_labels")
+```
+
+
 Visualise clusters on spatial plot
 
 ```{r}
-plot1 <- SpatialDimPlot(sobj, alpha = 0.7, images = 'slice1') & NoLegend()
-plot2 <- SpatialDimPlot(sobj, alpha = 0.7, images = 'slice1.1') +
+plot1 <- SpatialDimPlot(sobj, group.by = "general_cell_labels", alpha = 0.7, images = 'slice1') & NoLegend()
+plot2 <- SpatialDimPlot(sobj, group.by = "general_cell_labels", alpha = 0.7, images = 'slice1.1') +
   labs(fill = "Cluster")
 plot1 + plot2
 pdf("./figures/spatial/merged_dimPlot_UMAP.pdf")
@@ -152,8 +166,9 @@ Create heatmap with signature genes
 ```{r}
 plot <- DoHeatmap(sobj,
                   features = c(pp_genes, cv_genes),
-                  angle = 0,
-                  size = 3)
+                  label = FALSE,
+                  size = 3,
+                  group.by = "general_cell_labels")
 plot
 pdf("./figures/spatial/zoneSigs_byClust_heatmap.pdf")
 plot

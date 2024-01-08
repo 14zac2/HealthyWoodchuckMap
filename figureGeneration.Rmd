@@ -442,15 +442,15 @@ geneCodes <- c("STAB2","ITGA1","LYVE1","IFITM3;IFITM2;IFITM1",
                "MECOM","PLAC9","RSPO3","WNT2")
 # Second set of features
 geneCodes <- c("CLEC4G","STAB1","STAB2","LYVE1",
-               "CD34","MECOM","VWF","RSPO3",
-               "WNT2","ACKR1")
+               "CD34","MECOM","VWF","BMX",
+               "RSPO3","WNT2","ACKR1")
 plot <- FeaturePlot_scCustom(sobj,
                      features = geneCodes,
                      colors_use = viridis_light_high,
                      num_columns = 4)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_endothelialMarkers_UMAP.pdf", sep = ""),
-    height = ceiling(length(geneCodes)/4)*6, width = 24, width = 24)
+    height = ceiling(length(geneCodes)/4)*6, width = 24)
 plot
 dev.off()
 ```
