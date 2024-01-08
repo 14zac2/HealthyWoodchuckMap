@@ -173,6 +173,38 @@ write.table(markers,
             col.names = TRUE)
 ```
 
+Get ranked gene lists for GSEA (Myeloid VS Macs)
+
+```{r}
+DimPlot(scSeurat, group.by = "general_cell_labels", label = TRUE) & NoLegend()
+DimPlot(scSeurat, group.by = "integrated_snn_res.0.6", label = TRUE) & NoLegend()
+FeaturePlot(scSeurat, features = "MARCO")
+# Isolate macs
+macs <- colnames(scSeurat)[scSeurat$general_cell_labels == "Myeloid" & (scSeurat$integrated_snn_res.0.6 == 5 | scSeurat$integrated_snn_res.0.6 == 15)]
+monos <- colnames(scSeurat)[scSeurat$general_cell_labels == "Myeloid" & (scSeurat$integrated_snn_res.0.6 != 5 & scSeurat$integrated_snn_res.0.6 != 15)]
+# Find markers
+markers <- RunPresto(scSeurat,
+                     ident.1 = monos,
+                     ident.2 = macs,
+                     only.pos = FALSE,
+                     min.pct = 0,
+                     logfc.threshold = 0,
+                     recorrect_umi = FALSE)
+# Sort by avg_log2FC
+markers <- markers[order(-markers$avg_log2FC),]
+# Only keep gene names and avg_log2FC
+gene <- row.names(markers)
+avg_log2FC <- markers[,'avg_log2FC']
+markers <- cbind(gene, avg_log2FC)
+head(markers)
+write.table(markers,
+            file = "./figures/stimulation/monos_vs_macs.rnk",
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = TRUE)
+```
+
 
 Look for T-cell signatures.
 
@@ -357,6 +389,7 @@ FeaturePlot(scSeurat, feature = "PTPRC", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "CD3E", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "TBP", split.by = "tissue_type")
 FeaturePlot(scSeurat, feature = "SDHA", split.by = "tissue_type")
+FeaturePlot(scSeurat, feature = "ALB-1", split.by = "tissue_type")
 ```
 
 
