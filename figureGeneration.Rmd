@@ -415,6 +415,23 @@ pp_genes
 
 ### Cell-type markers all in one plot
 
+Hepatocytes:
+
+```{r}
+geneCodes <- c("CYP2E1","FETUB","HMGCS1","GLUD1;GLUD2",
+               "CYP1A2","APOC2","Saa2;Saa1-1", "HAMP",
+               "PCK1")
+plot <- FeaturePlot_scCustom(sobj,
+                     features = geneCodes,
+                     colors_use = viridis_light_high,
+                     num_columns = 4)
+plot
+pdf(paste("./figures/", tissue, "/", tissue, "_hepatocyteMarkers_UMAP.pdf", sep = ""),
+    height = ceiling(length(geneCodes)/4)*6, width = 24)
+plot
+dev.off()
+```
+
 Endothelial cells:
 
 ```{r}
@@ -433,7 +450,7 @@ plot <- FeaturePlot_scCustom(sobj,
                      num_columns = 4)
 plot
 pdf(paste("./figures/", tissue, "/", tissue, "_endothelialMarkers_UMAP.pdf", sep = ""),
-    height = 18, width = 24)
+    height = ceiling(length(geneCodes)/4)*6, width = 24, width = 24)
 plot
 dev.off()
 ```
