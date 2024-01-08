@@ -227,7 +227,7 @@ Make PDF of heatmap
 ```{r}
 groups <- "general_cell_labels"
 pdf(paste("./figures/", tissue, "/", tissue, "_heatmap_", groups, ".pdf", sep = ""),
-    height = 11,
+    height = 13,
     width = 7)
 DoHeatmap(sobj, features = top$gene, group.by = "general_cell_labels", size = 2, 
           angle = 90, cells = cells) +
@@ -552,8 +552,8 @@ Generate heatmaps comparing woodchuck clusters with various datasets
 First, set up whatever woodchuck dataset I am working with by reading in the ortholog table, choosing whether the orthologs to use are human, mouse, or woodchuck, and calculating the average expression for each cluster. The output of this section is the scaled cluster gene-expression matrix
 
 ```{r}
-groups <- res
-#groups <- "general_cell_labels"
+#groups <- res
+groups <- "general_cell_labels"
 # Read in ortholog table
 geneNameTable <- read.table("~/Dropbox/Zoe/scf_version/make_gtf/orthofinder_sc2/homologene/collectedOrthofinderPairings.tsv",
                             sep = "\t",
