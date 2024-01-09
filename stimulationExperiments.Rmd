@@ -28,6 +28,8 @@ load("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/no_dropletQC/
 Idents(scSeurat) <- "integrated_snn_res.0.4"
 ```
 
+## UMAPs
+
 Check out the UMAP of clusters, original identities, and refined SCINA labels.
 
 ```{r}
@@ -59,6 +61,7 @@ plot
 dev.off()
 ```
 
+## Barplot of tissue type
 
 Look at tissue-type per cluster on a proportional level:
 
@@ -79,6 +82,8 @@ pdf(file = './figures/stimulation/downsampled_tissue_type_barplot.pdf',
 plot + coord_flip()
 dev.off()
 ```
+
+## DE gene testing
 
 Calculate all DE genes
 
@@ -118,6 +123,8 @@ for (clust in levels(as.factor(Idents(scSeurat)))) {
               row.names = TRUE)
 }
 ```
+
+## Get ranked gene lists
 
 Get ranked gene lists for GSEA (T cells)
 
@@ -205,6 +212,7 @@ write.table(markers,
             col.names = TRUE)
 ```
 
+## Feature visualization
 
 Look for T-cell signatures.
 
@@ -214,6 +222,19 @@ FeaturePlot(scSeurat, features = c("LEF1", "XCL1;XCL2"))
 FeaturePlot(scSeurat, features = c("TOX", "CD8A"))
 FeaturePlot(scSeurat, features = c("CCR7"))
 ```
+
+Look for Th1 and Th2 signatures
+Th1: CD4, STAT4, Tbet, Tnfb, ifng
+Th2: CD4, GATA3, STAT6, IL 4/5/6/10/13
+
+```{r}
+FeaturePlot(scSeurat, features = c("CD4", "STAT4"))
+FeaturePlot(scSeurat, features = c("GATA3", "STAT6"))
+FeaturePlot(scSeurat, features = c("IL4", "IL5"))
+FeaturePlot(scSeurat, features = c("IL6", "IL10"))
+FeaturePlot(scSeurat, features = c("IL13"))
+```
+
 
 Look for macrophage signatures:
 
@@ -288,7 +309,7 @@ for (gene in genes) {
 }
 ```
 
-# Stim vs unstim heatmap
+## Stim vs unstim heatmap
 
 Look at the same features on a heatmap:
 
