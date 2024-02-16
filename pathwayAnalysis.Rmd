@@ -1,0 +1,117 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Find DE genes for pathway analysis for certain datasets.
+
+## Prepare objects
+
+```{r}
+library(Seurat)
+library(scClustViz)
+library(ggplot2)
+library(dplyr)
+```
+
+Read in liver map
+
+```{r}
+sobj <- readRDS("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/seurat_objects/dropletQC_filtered/allIntegrated_cca_kanchor5_noBiopsyHeps_dropletQCFiltered.RDS")
+res <- "integrated_snn_res.1.4"
+Idents(sobj) <- res
+tissue <- "liver"
+```
+
+Visualise
+
+```{r}
+DimPlot(sobj, label = TRUE)
+```
+
+## DE gene calculations
+
+Assign desired identities
+
+```{r}
+Idents(sobj) <- "general_cell_labels"
+```
+
+### RunPrestoAll
+
+Calculate DE genes: use EITHER FindAllMarkers, or FindMarkers (for clust vs clust comparisons)
+
+Run presto
+
+```{r}
+markers <- RunPrestoAll(sobj,
+                        only.pos = FALSE,
+                        min.pct = 0,
+                        logfc.threshold = 0,
+                        assay = "SCT",
+                        slot = "counts",
+                        recorrect_umi = FALSE)
+```
+
+
+
+```{r}
+# Get desired cluster (If used FindAllMarkers)
+clust <- markers[markers$cluster == "Macrophages",]
+# Keep only avg_diff and rename column
+clust <- dplyr::select(clust, avg_log2FC)
+# Add gene name as a column
+clust$gene <- row.names(clust)
+# Sort
+clust <- clust[order(-clust$avg_log2FC),]
+# Reorder columns
+clust <- dplyr::select(clust, gene, avg_log2FC)
+# Save
+comparison <- "macrophages_vs_all"
+write.table(clust,
+            file = paste("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/figures/",
+                                tissue, "/", comparison, ".rnk", sep = ""),
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = FALSE)
+```
+
+### RunPresto
+
+```{r}
+markers <- RunPresto(sobj,
+                     ident.1 = "Macrophages",
+                     ident.2 = c("CD14-/CD16+ Non-classical monocytes","CD14+/CD16+ Monocytes"),
+                     only.pos = FALSE,
+                     min.pct = 0,
+                     logfc.threshold = 0,
+                     assay = "SCT",
+                     slot = "counts",
+                     recorrect_umi = FALSE)
+head(markers)
+```
+
+
+```{r}
+# Keep only avg_diff and rename column
+clust <- dplyr::select(markers, avg_log2FC)
+# Add gene name as a column
+clust$gene <- row.names(clust)
+# Sort
+clust <- clust[order(-clust$avg_log2FC),]
+# Reorder columns
+clust <- dplyr::select(clust, gene, avg_log2FC)
+# Save results
+comparison <- "macs_vs_mono"
+write.table(clust, 
+            file = paste("~/Dropbox/Zoe/scf_version/analysis/healthy_sc/figures/",
+                                tissue, "/", comparison, ".rnk", sep = ""),
+            sep = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = FALSE)
+```
+
+
+
