@@ -315,8 +315,12 @@ Look at the same features on a heatmap:
 
 ```{r}
 # Make ordered list of genes to visualise
-genes <- c("ACTB","PTPRC","CD3E","TBP","SDHA","NFKB1","CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4","CCL5",
+genes <- c("DHX8","JMJD1C","ERBIN","TCF12","HNRNPA2B1","NFKB1","CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4","CCL5",
            "TNF","IFNG","IL2RA","IL2","IL4","IL6","IL7","IL10")
+# Looked for genes with high expression:
+# sort(apply(scSeurat@assays$RNA@counts, 1, sum), decreasing = TRUE)[1:50]
+# Other possible housekeeping genes: Sptssa, CHIC1, FNIP1 (?), DDX5, ZFAND3, HNRNPA2B1, JMJD1C, ERBIN
+# TCF12, DHX8
 # Loop through clusters
 for (clust in c("1","2", "5")) {
   # Isolate RNA expression and tissue type
