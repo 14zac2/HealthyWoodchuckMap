@@ -322,6 +322,14 @@ for(num in 1:length(geneCodes)) {
 }
 ```
 
+Highlight endothelial cluster:
+
+```{r}
+cells <- WhichCells(sobj, idents = "Endothelial")
+DimPlot(sobj, cells.highlight = cells)
+```
+
+
 Lymphocytes:
 
 ```{r}
