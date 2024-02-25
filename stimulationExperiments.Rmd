@@ -18,6 +18,7 @@ library(SeuratWrappers)
 library(scCustomize)
 library(reshape2)
 library(viridis)
+library(ggrepel)
 ```
 
 Load integrated object. This object has been integrated with CCA, because there was lots of batch effect between the 0hr tissue and the other two experiments (which merged quite well).
@@ -522,6 +523,32 @@ de_results <- FindMarkers(scSeurat,
             ident.1 = cells1,
             ident.2 = cells2)
 cat(row.names(de_results)[1:100], sep = " ")
+```
+
+## Volcano plots
+
+Comparing stim vs unstim for some cell populations and create volcano plot
+
+```{r}
+for (clust in levels(as.factor(Idents(scSeurat)))){
+  # Read in DE genes
+  markers <- read.table(file = paste("./figures/stimulation/downsampled_markers_cluster",
+                                   clust ,"_stim_vs_unstim.tsv", sep = ""),
+                      header = TRUE)
+  markers$gene <- row.names(markers)
+  plot <- ggplot(data = markers, aes(x = avg_log2FC, y=-log10(p_val_adj), label = gene)) +
+          geom_point() + 
+          theme_minimal() +
+          geom_text_repel(max.overlaps = 15) +
+          scale_color_manual(values=c("blue", "black", "red")) +
+          geom_vline(xintercept=c(-0.6, 0.6), col="red") +
+          geom_hline(yintercept=-log10(0.05), col="red")
+  print(plot)
+  pdf(paste("figures/stimulation/volcano_stim_vs_unstim_clust", clust, ".pdf", sep = ""),
+      height = 8, width = 10)
+  print(plot)
+  dev.off()
+}
 ```
 
 
