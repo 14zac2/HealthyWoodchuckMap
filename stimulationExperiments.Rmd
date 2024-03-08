@@ -316,14 +316,17 @@ Look at the same features on a heatmap:
 
 ```{r}
 # Make ordered list of genes to visualise
-genes <- c("DHX8","JMJD1C","ERBIN","TCF12","HNRNPA2B1","NFKB1","CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4","CCL5",
-           "TNF","IFNG","IL2RA","IL2","IL4","IL6","IL7","IL10")
+genes <- c("DHX8","JMJD1C","ERBIN","TCF12","HNRNPA2B1",
+           "NFKB1","CD247","CSF1","IDO1","PDCD1",
+           "CCL3L1;CCL3L3;CCL3;CCL18","CCL4L2;CCL4L1;CCL4","CCL5",
+           "TNF","IFNG","TGFB1",
+           "IL2RA","IL2","IL4","IL6","IL7","IL10","IL21")
 # Looked for genes with high expression:
 # sort(apply(scSeurat@assays$RNA@counts, 1, sum), decreasing = TRUE)[1:50]
 # Other possible housekeeping genes: Sptssa, CHIC1, FNIP1 (?), DDX5, ZFAND3, HNRNPA2B1, JMJD1C, ERBIN
 # TCF12, DHX8
 # Loop through clusters
-for (clust in c("1","2", "5")) {
+for (clust in c("1","2","5","6")) {
   # Isolate RNA expression and tissue type
   dat <- t(as.data.frame(scSeurat@assays$SCT@data[genes,
                                                   scSeurat$integrated_snn_res.0.4 == clust]))
@@ -347,12 +350,14 @@ for (clust in c("1","2", "5")) {
   if (clust == "1") {
     cells <- "myeloid"
   } else if (clust == "2") {
-    cells <- "t_cell"
+    cells <- "t_cell_clust2"
   } else if (clust == "5") {
     cells <- "hepatocyte"
+  } else if (clust == "6") {
+    cells <- "t_cell_clust6"
   }
   pdf(paste("./figures/stimulation/downsampled", cells, "key_marker_heatmap.pdf", sep = "_"),
-    height = 2, width = 14)
+    height = 2, width = 20)
   print(plot)
   dev.off() 
 }
